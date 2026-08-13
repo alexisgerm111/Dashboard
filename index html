@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Directeur Commercial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #EEF1F6;
+    --surface:   #FFFFFF;
+    --surface-2: #F5F7FA;
+    --border:    #E2E7EF;
+    --border-2:  #D0D7E3;
+
+    --blue:      #1D4ED8;
+    --blue-light:#EFF4FF;
+    --blue-mid:  #DBEAFE;
+
+    --green:     #059669;
+    --green-light:#ECFDF5;
+
+    --amber:     #D97706;
+    --amber-light:#FFFBEB;
+
+    --red:       #DC2626;
+    --red-light: #FEF2F2;
+
+    --purple:    #7C3AED;
+    --purple-light:#F5F3FF;
+
+    --text-1:    #0F172A;
+    --text-2:    #334155;
+    --text-3:    #64748B;
+    --text-4:    #94A3B8;
+
+    --sidebar-w: 64px;
+    --radius:    12px;
+    --radius-sm: 8px;
+    --shadow:    0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+    --shadow-md: 0 4px 12px rgba(15,23,42,0.08), 0 2px 4px rgba(15,23,42,0.04);
+  }
+
+  html { font-size: 14px; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-1);
+    display: flex;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── SIDEBAR ────────────────────────────────────── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--text-1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 18px 0 24px;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+    gap: 4px;
+  }
+  .sidebar-logo {
+    width: 32px; height: 32px;
+    background: var(--blue);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 24px;
+    flex-shrink: 0;
+  }
+  .sidebar-logo svg { width: 18px; height: 18px; }
+  .sb-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s;
+    color: #94A3B8;
+  }
+  .sb-icon:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sb-icon.active { background: rgba(29,78,216,0.3); color: #60A5FA; }
+  .sb-icon svg { width: 18px; height: 18px; }
+  .sidebar-divider { width: 24px; height: 1px; background: rgba(255,255,255,0.08); margin: 8px 0; }
+  .sidebar-spacer { flex: 1; }
+  .sb-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: #fff;
+    cursor: pointer;
+  }
+
+  /* ── MAIN ────────────────────────────────────────── */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  /* ── TOPBAR ──────────────────────────────────────── */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0;
+    z-index: 50;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .topbar-title { font-size: 15px; font-weight: 600; color: var(--text-1); }
+  .topbar-sub { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+  .period-tabs {
+    display: flex;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+    gap: 2px;
+  }
+  .period-tab {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-3);
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    transition: all 0.15s;
+  }
+  .period-tab.active {
+    background: var(--surface);
+    color: var(--text-1);
+    box-shadow: var(--shadow);
+  }
+
+  .live-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--green-light);
+    border: 1px solid #A7F3D0;
+    border-radius: 20px;
+    padding: 4px 10px 4px 8px;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--green);
+    cursor: pointer;
+  }
+  .live-dot {
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse-green 2s infinite;
+  }
+  @keyframes pulse-green {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-2);
+    border: 1px solid var(--border-2);
+  }
+  .btn-ghost:hover { background: var(--bg); }
+  .btn-primary {
+    background: var(--blue);
+    color: white;
+  }
+  .btn-primary:hover { background: #1E40AF; }
+
+  /* ── CONTENT ─────────────────────────────────────── */
+  .content { padding: 24px 28px 48px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* ── AI FEED ─────────────────────────────────────── */
+  .ai-feed {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    box-shadow: var(--shadow);
+  }
+  .ai-feed-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .ai-feed-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+  }
+  .ai-badge {
+    background: linear-gradient(135deg, #1D4ED8, #7C3AED);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+  }
+  .feed-cards {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .feed-cards::-webkit-scrollbar { display: none; }
+  .feed-card {
+    flex-shrink: 0;
+    width: 320px;
+    border-radius: 10px;
+    padding: 14px 16px;
+    border: 1px solid transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .feed-card.type-opp { background: var(--green-light); border-color: #BBF7D0; }
+  .feed-card.type-warn { background: var(--amber-light); border-color: #FDE68A; }
+  .feed-card.type-alert { background: var(--red-light); border-color: #FECACA; }
+  .feed-card.type-info { background: var(--blue-light); border-color: var(--blue-mid); }
+
+  .feed-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10.5px; font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .feed-tag.opp { color: var(--green); }
+  .feed-tag.warn { color: var(--amber); }
+  .feed-tag.alert { color: var(--red); }
+  .feed-tag.info { color: var(--blue); }
+
+  .feed-text {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--text-2);
+  }
+  .feed-text strong { color: var(--text-1); font-weight: 600; }
+  .feed-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .feed-btn {
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 5px 11px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .feed-btn.primary-action { background: var(--text-1); color: white; }
+  .feed-btn.primary-action:hover { background: var(--blue); }
+  .feed-btn.secondary-action { background: rgba(0,0,0,0.06); color: var(--text-2); }
+  .feed-btn.secondary-action:hover { background: rgba(0,0,0,0.10); }
+
+  /* ── ROI BLOCK ───────────────────────────────────── */
+  .roi-block { display: flex; flex-direction: column; gap: 16px; }
+  .roi-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .roi-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+  .roi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .roi-card.accent-green::before { background: var(--green); }
+  .roi-card.accent-blue::before { background: var(--blue); }
+  .roi-card.accent-amber::before { background: var(--amber); }
+  .roi-card.accent-purple::before { background: var(--purple); }
+
+  .roi-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .roi-value {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--text-1);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .roi-value span.unit { font-size: 18px; font-weight: 600; }
+  .roi-delta {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .roi-delta.up { color: var(--green); }
+  .roi-delta.neutral { color: var(--amber); }
+  .roi-sub { font-size: 11.5px; color: var(--text-3); line-height: 1.5; }
+  .roi-cta {
+    margin-top: 6px;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--blue);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .roi-cta:hover { text-decoration: underline; }
+
+  /* ── CORRELATION CHART ───────────────────────────── */
+  .correlation-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+  }
+  .card-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text-1); }
+  .card-sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+  .chart-legend {
+    display: flex; gap: 16px; align-items: center;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-3); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .chart-area {
+    position: relative;
+    height: 160px;
+  }
+  .chart-svg { width: 100%; height: 100%; overflow: visible; }
+
+  /* ── GRID 2 COL ──────────────────────────────────── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 380px; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  /* ── TEAM MATRIX ─────────────────────────────────── */
+  .team-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .team-card-header {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .filter-pills { display: flex; gap: 6px; }
+  .filter-pill {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border-2);
+    background: transparent;
+    color: var(--text-3);
+    transition: all 0.15s;
+  }
+  .filter-pill.active {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+  }
+
+  .team-table { width: 100%; border-collapse: collapse; }
+  .team-table thead tr { background: var(--surface-2); }
+  .team-table th {
+    padding: 9px 16px;
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .team-table th:first-child { padding-left: 22px; }
+  .team-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+    cursor: pointer;
+  }
+  .team-table tbody tr:hover { background: var(--surface-2); }
+  .team-table tbody tr:last-child { border-bottom: none; }
+  .team-table td { padding: 13px 16px; vertical-align: middle; }
+  .team-table td:first-child { padding-left: 22px; }
+
+  .rep-info { display: flex; align-items: center; gap: 11px; }
+  .rep-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .rep-name { font-size: 13px; font-weight: 500; color: var(--text-1); }
+  .rep-role { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+
+  /* Circular progress - signature element */
+  .circle-wrap {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .circ-svg { width: 40px; height: 40px; transform: rotate(-90deg); flex-shrink: 0; }
+  .circ-bg { fill: none; stroke: var(--border); stroke-width: 3.5; }
+  .circ-fill {
+    fill: none;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .circ-fill.green { stroke: var(--green); }
+  .circ-fill.blue { stroke: var(--blue); }
+  .circ-fill.amber { stroke: var(--amber); }
+  .circ-fill.red { stroke: var(--red); }
+
+  .circ-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-1);
+  }
+
+  .bar-mini {
+    width: 100%;
+    max-width: 120px;
+    height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .bar-mini-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s ease;
+  }
+  .bar-mini-fill.blue { background: var(--blue); }
+  .bar-mini-fill.green { background: var(--green); }
+  .bar-mini-fill.amber { background: var(--amber); }
+
+  .mini-stat { font-size: 12.5px; font-weight: 500; color: var(--text-2); margin-top: 4px; }
+
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px 3px 7px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .status-badge .dot { width: 5px; height: 5px; border-radius: 50%; }
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-green .dot { background: var(--green); }
+  .badge-amber { background: var(--amber-light); color: var(--amber); }
+  .badge-amber .dot { background: var(--amber); }
+  .badge-red { background: var(--red-light); color: var(--red); }
+  .badge-red .dot { background: var(--red); }
+  .badge-purple { background: var(--purple-light); color: var(--purple); }
+  .badge-purple .dot { background: var(--purple); }
+
+  .action-link {
+    font-size: 11.5px; font-weight: 500;
+    color: var(--blue); cursor: pointer;
+    background: none; border: none;
+    padding: 0; display: inline-flex; align-items: center; gap: 3px;
+  }
+  .action-link:hover { text-decoration: underline; }
+
+  /* ── RADAR ───────────────────────────────────────── */
+  .radar-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+  .radar-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .radar-filter {
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border-2);
+    background: transparent;
+    color: var(--text-3);
+    transition: all 0.12s;
+  }
+  .radar-filter.active { background: var(--blue); color: white; border-color: var(--blue); }
+  .radar-svg-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 16px 0 12px;
+  }
+  .radar-legend {
+    display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  }
+  .radar-leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-3); }
+  .radar-leg-line { width: 18px; height: 2.5px; border-radius: 2px; }
+
+  /* ── RECRUITMENT ─────────────────────────────────── */
+  .recruit-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .recruit-stat {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .recruit-stat-num { font-size: 28px; font-weight: 700; color: var(--text-1); letter-spacing: -0.02em; }
+  .recruit-stat-label { font-size: 12px; color: var(--text-3); }
+  .recruit-stat-impact { font-size: 11.5px; color: var(--green); font-weight: 500; margin-top: 4px; }
+
+  .funnel-row {
+    display: flex; flex-direction: column; gap: 6px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 18px 22px;
+    margin-bottom: 16px;
+  }
+  .funnel-step { display: flex; align-items: center; gap: 12px; }
+  .funnel-label { font-size: 12px; color: var(--text-2); width: 200px; flex-shrink: 0; }
+  .funnel-bar-bg { flex: 1; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+  .funnel-bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+  .funnel-num { font-size: 12.5px; font-weight: 600; color: var(--text-1); width: 30px; text-align: right; }
+  .funnel-pct { font-size: 11px; color: var(--text-3); width: 40px; }
+
+  .ats-table-wrap {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .ats-table { width: 100%; border-collapse: collapse; }
+  .ats-table th {
+    padding: 9px 16px;
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+    text-align: left;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+  }
+  .ats-table th:first-child { padding-left: 22px; }
+  .ats-table td { padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .ats-table td:first-child { padding-left: 22px; }
+  .ats-table tbody tr:last-child td { border-bottom: none; }
+  .ats-table tbody tr:hover { background: var(--surface-2); }
+
+  .score-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .score-high { background: var(--green-light); color: var(--green); }
+  .score-mid { background: var(--amber-light); color: var(--amber); }
+  .score-low { background: var(--red-light); color: var(--red); }
+
+  .replay-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--text-2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .replay-btn:hover { background: var(--blue); color: white; border-color: var(--blue); }
+  .play-icon { width: 12px; height: 12px; }
+
+  /* ── COACHING ────────────────────────────────────── */
+  .coaching-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .debrief-item {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .debrief-item:last-child { border-bottom: none; }
+  .debrief-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .debrief-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .debrief-title { font-size: 13.5px; font-weight: 600; color: var(--text-1); }
+  .deal-amount {
+    font-size: 12px; font-weight: 600;
+    background: var(--blue-light);
+    color: var(--blue);
+    padding: 2px 8px;
+    border-radius: 5px;
+  }
+  .ai-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ai-badge-item {
+    font-size: 11px; font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 5px;
+    background: var(--surface-2);
+    color: var(--text-2);
+    border: 1px solid var(--border);
+  }
+
+  .debrief-quant {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    background: var(--surface-2);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .dq-item { display: flex; flex-direction: column; gap: 2px; }
+  .dq-num { font-size: 18px; font-weight: 700; color: var(--text-1); }
+  .dq-label { font-size: 10.5px; color: var(--text-3); }
+
+  .debrief-qual {
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--text-2);
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #F0F4FF, #F5F3FF);
+    border-radius: 8px;
+    border-left: 3px solid var(--blue);
+  }
+  .debrief-qual strong { color: var(--text-1); font-weight: 600; }
+
+  .debrief-actions { display: flex; gap: 8px; align-items: center; }
+
+  /* ── SECTION HEADERS ─────────────────────────────── */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-1);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-icon {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── SCROLLBAR ───────────────────────────────────── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <svg viewBox="0 0 18 18" fill="none"><path d="M9 2L15 5.5V12.5L9 16L3 12.5V5.5L9 2Z" stroke="white" stroke-width="1.5" fill="rgba(255,255,255,0.15)"/><circle cx="9" cy="9" r="2.5" fill="white"/></svg>
+  </div>
+  <div class="sb-icon active" title="Dashboard">
+    <svg viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="10" y="2" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.4"/><rect x="2" y="10" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.4"/><rect x="10" y="10" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.4"/></svg>
+  </div>
+  <div class="sb-icon" title="Équipe">
+    <svg viewBox="0 0 18 18" fill="none"><circle cx="7" cy="6" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M2 15c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="13" cy="6" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M16 15c0-2.21-1.34-4-3-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </div>
+  <div class="sb-icon" title="Recrutement">
+    <svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M3 16c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12 3l1.5 1.5L16 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <div class="sb-icon" title="Coaching">
+    <svg viewBox="0 0 18 18" fill="none"><path d="M3 9a6 6 0 1 1 12 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 9v2a1 1 0 0 0 1 1h1V8H4a1 1 0 0 0-1 1zm12 0v2a1 1 0 0 1-1 1h-1V8h1a1 1 0 0 1 1 1z" stroke="currentColor" stroke-width="1.5"/></svg>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sb-icon" title="Parcours">
+    <svg viewBox="0 0 18 18" fill="none"><path d="M2 4h14M2 9h10M2 14h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </div>
+  <div class="sb-icon" title="Rapports">
+    <svg viewBox="0 0 18 18" fill="none"><rect x="3" y="2" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 6h6M6 9h6M6 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </div>
+  <div class="sidebar-spacer"></div>
+  <div class="sb-icon" title="Paramètres">
+    <svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M9 2v2M9 14v2M2 9h2M14 9h2M3.93 3.93l1.41 1.41M12.66 12.66l1.41 1.41M3.93 14.07l1.41-1.41M12.66 5.34l1.41-1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </div>
+  <div style="height: 10px;"></div>
+  <div class="sb-avatar">JD</div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div>
+        <div class="topbar-title">Vue Directeur Commercial</div>
+        <div class="topbar-sub">Équipe France Grands Comptes</div>
+      </div>
+      <div class="period-tabs">
+        <button class="period-tab">Ce mois</button>
+        <button class="period-tab active">Ce trimestre</button>
+        <button class="period-tab">12 mois</button>
+        <button class="period-tab">Depuis activation</button>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="live-pill">
+        <div class="live-dot"></div>
+        3 appels en cours
+      </div>
+      <button class="btn btn-ghost">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 6l3.5 3.5L10 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Exporter rapport CODIR
+      </button>
+      <button class="btn btn-primary">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="white" stroke-width="1.4"/><path d="M6.5 4v2.5l1.5 1.5" stroke="white" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Top Performers
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- ── SECTION 1 : FIL IA ── -->
+    <div class="ai-feed">
+      <div class="ai-feed-header">
+        <div class="ai-feed-label">
+          <span class="ai-badge">IA</span>
+          Fil d'actualité — Actions prioritaires du jour
+        </div>
+        <button class="btn btn-ghost" style="font-size:11.5px; padding: 4px 10px;">Tout voir</button>
+      </div>
+      <div class="feed-cards">
+
+        <div class="feed-card type-opp">
+          <div class="feed-tag opp">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1L6.8 4.2H10.3L7.5 6.2L8.5 9.5L5.5 7.5L2.5 9.5L3.5 6.2L0.7 4.2H4.2L5.5 1Z" fill="currentColor"/></svg>
+            Opportunité · Duplication Best Practice
+          </div>
+          <div class="feed-text"><strong>Thomas</strong> atteint 42% de taux de closing sur la phase Découverte. L'IA a isolé sa séquence décisive de 3 min et l'a injectée dans le parcours des 3 commerciaux sous 20%.</div>
+          <div class="feed-actions">
+            <button class="feed-btn primary-action">▶ Écouter la séquence (3:12)</button>
+            <button class="feed-btn secondary-action">Voir le parcours créé</button>
+          </div>
+        </div>
+
+        <div class="feed-card type-warn">
+          <div class="feed-tag warn">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1.5L10 9.5H1L5.5 1.5Z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5.5 4.5v2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="5.5" cy="8" r="0.6" fill="currentColor"/></svg>
+            Alerte · Divergence entraînement / terrain
+          </div>
+          <div class="feed-text"><strong>Sarah B.</strong> obtient 95% au simulateur sur la défense des prix, mais concède −15% de remise dès la 10e minute en visio réelle. Signal : pression émotionnelle face au prospect.</div>
+          <div class="feed-actions">
+            <button class="feed-btn primary-action">Voir l'autopsie</button>
+            <button class="feed-btn secondary-action">Entraînement posture</button>
+          </div>
+        </div>
+
+        <div class="feed-card type-alert">
+          <div class="feed-tag alert">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 3.5V6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="5.5" cy="7.5" r="0.6" fill="currentColor"/></svg>
+            Urgent · Décrochage comportemental
+          </div>
+          <div class="feed-text"><strong>Thomas K.</strong> n'a pas activé le copilote temps réel depuis 9 jours. Son taux de closing a baissé de 6 points. La corrélation est directe sur ses 4 derniers appels.</div>
+          <div class="feed-actions">
+            <button class="feed-btn primary-action">Envoyer le point pré-rédigé</button>
+          </div>
+        </div>
+
+        <div class="feed-card type-info">
+          <div class="feed-tag info">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 4.5v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="5.5" cy="3" r="0.6" fill="currentColor"/></svg>
+            Insight · Point faible collectif
+          </div>
+          <div class="feed-text">L'équipe progresse fortement sur la Découverte (+12 pts) mais la <strong>demande d'engagement reste le creux collectif</strong> (−8 pts vs Top Performers). Recommandation IA : atelier closing.</div>
+          <div class="feed-actions">
+            <button class="feed-btn primary-action">Créer le parcours collectif</button>
+            <button class="feed-btn secondary-action">Planifier l'atelier</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── SECTION 2 : ROI ── -->
+    <div class="roi-block">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-icon" style="background:#EFF4FF;">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5v11M3 5l4-3.5L11 5M3 10h8" stroke="#1D4ED8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          Retour sur investissement — Ce trimestre
+        </div>
+      </div>
+
+      <div class="roi-kpis">
+        <div class="roi-card accent-green">
+          <div class="roi-label">CA additionnel attribuable</div>
+          <div class="roi-value">+187<span class="unit"> k€</span></div>
+          <div class="roi-delta up">↑ +34% vs trimestre précédent</div>
+          <div class="roi-sub">Corrélé à la hausse du taux de closing depuis activation du copilote</div>
+          <a class="roi-cta">Voir la méthode de calcul →</a>
+        </div>
+        <div class="roi-card accent-blue">
+          <div class="roi-label">ROI net de la licence</div>
+          <div class="roi-value">×14<span class="unit">.2</span></div>
+          <div class="roi-delta up">Pour 1 € investi : 14,2 € générés</div>
+          <div class="roi-sub">Calcul net : gains CA + coûts évités − coût licence</div>
+          <a class="roi-cta">Détail CODIR exportable →</a>
+        </div>
+        <div class="roi-card accent-amber">
+          <div class="roi-label">Coût managérial préservé</div>
+          <div class="roi-value">62<span class="unit"> h</span></div>
+          <div class="roi-delta neutral">≈ 9 300 € de coût évité</div>
+          <div class="roi-sub">140 candidats évalués sans mobiliser une minute RH/manager</div>
+          <a class="roi-cta">Voir l'entonnoir recrutement →</a>
+        </div>
+        <div class="roi-card accent-purple">
+          <div class="roi-label">Réduction délai performance</div>
+          <div class="roi-value">−38<span class="unit"> j</span></div>
+          <div class="roi-delta up">Avant premier closing des nouvelles recrues</div>
+          <div class="roi-sub">Moyenne sur les 4 derniers recrutements traités via la plateforme</div>
+          <a class="roi-cta">Voir la cohorte →</a>
+        </div>
+      </div>
+
+      <!-- Correlation chart -->
+      <div class="correlation-card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Corrélation Compétences → Chiffre d'affaires</div>
+            <div class="card-sub">La hausse des scores précède systématiquement la hausse du CA de 2 à 3 semaines</div>
+          </div>
+          <div style="display:flex; align-items:center; gap: 16px;">
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#1D4ED8;"></div> Score compétence</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#059669;"></div> CA mensuel</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#E2E7EF; width:18px; height:2px; border-radius:2px;"></div> Activation</div>
+            </div>
+            <button class="btn btn-ghost" style="font-size:11.5px; padding:5px 10px;">↓ Télécharger</button>
+          </div>
+        </div>
+        <div class="chart-area">
+          <svg class="chart-svg" viewBox="0 0 900 160" preserveAspectRatio="none">
+            <!-- Grid lines -->
+            <line x1="0" y1="32" x2="900" y2="32" stroke="#E2E7EF" stroke-width="1"/>
+            <line x1="0" y1="64" x2="900" y2="64" stroke="#E2E7EF" stroke-width="1"/>
+            <line x1="0" y1="96" x2="900" y2="96" stroke="#E2E7EF" stroke-width="1"/>
+            <line x1="0" y1="128" x2="900" y2="128" stroke="#E2E7EF" stroke-width="1"/>
+
+            <!-- Activation markers -->
+            <line x1="220" y1="0" x2="220" y2="150" stroke="#E2E7EF" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <text x="224" y="14" font-size="10" fill="#94A3B8" font-family="Inter">Simulateur vocal</text>
+            <line x1="470" y1="0" x2="470" y2="150" stroke="#E2E7EF" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <text x="474" y="14" font-size="10" fill="#94A3B8" font-family="Inter">Copilote temps réel</text>
+            <line x1="690" y1="0" x2="690" y2="150" stroke="#E2E7EF" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <text x="694" y="14" font-size="10" fill="#94A3B8" font-family="Inter">Recrutement IA</text>
+
+            <!-- CA curve (green) - area fill -->
+            <defs>
+              <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#059669" stop-opacity="0.12"/>
+                <stop offset="100%" stop-color="#059669" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1D4ED8" stop-opacity="0.10"/>
+                <stop offset="100%" stop-color="#1D4ED8" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,135 C50,132 100,128 150,125 C200,122 210,122 220,121 C280,118 340,112 380,106 C420,100 450,97 470,94 C530,86 580,76 630,66 C660,60 680,55 690,52 C730,44 780,35 840,26 L900,20 L900,160 L0,160Z" fill="url(#greenGrad)"/>
+            <path d="M0,135 C50,132 100,128 150,125 C200,122 210,122 220,121 C280,118 340,112 380,106 C420,100 450,97 470,94 C530,86 580,76 630,66 C660,60 680,55 690,52 C730,44 780,35 840,26 L900,20" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round"/>
+
+            <!-- Competence curve (blue) - leads by 2-3 weeks -->
+            <path d="M0,142 C40,138 80,132 120,126 C160,120 200,114 220,110 C260,104 310,96 360,88 C400,82 440,76 470,70 C510,63 560,54 610,44 C650,37 670,32 690,28 C730,20 780,13 840,8 L900,5" fill="none" stroke="#1D4ED8" stroke-width="2" stroke-dasharray="6,3" stroke-linecap="round"/>
+
+            <!-- Month labels -->
+            <text x="10" y="158" font-size="10" fill="#94A3B8" font-family="Inter">Jan</text>
+            <text x="118" y="158" font-size="10" fill="#94A3B8" font-family="Inter">Fév</text>
+            <text x="230" y="158" font-size="10" fill="#94A3B8" font-family="Inter">Mars</text>
+            <text x="345" y="158" font-size="10" fill="#94A3B8" font-family="Inter">Avr</text>
+            <text x="455" y="158" font-size="10" fill="#94A3B8" font-family="Inter">Mai</text>
+            <text x="568" y="158" font-size="10" fill="#94A3B8" font-family="Inter">Juin</text>
+            <text x="680" y="158" font-size="10" fill="#94A3B8" font-family="Inter">Juil</text>
+            <text x="790" y="158" font-size="10" fill="#94A3B8" font-family="Inter">Août</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 3 : ÉQUIPE & RADAR ── -->
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-icon" style="background:#ECFDF5;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5.5" cy="4.5" r="2" stroke="#059669" stroke-width="1.4"/><path d="M1.5 12c0-2.21 1.79-4 4-4s4 1.79 4 4" stroke="#059669" stroke-width="1.4" stroke-linecap="round"/><circle cx="10.5" cy="4.5" r="1.5" stroke="#059669" stroke-width="1.4"/><path d="M12.5 12c0-1.66-0.9-3-2-3" stroke="#059669" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </div>
+        Matrice équipe & Radar Top Performer
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Team matrix -->
+      <div class="team-card">
+        <div class="team-card-header">
+          <div style="font-size:13px; font-weight:600; color:var(--text-1);">6 commerciaux</div>
+          <div class="filter-pills">
+            <button class="filter-pill active">Tous</button>
+            <button class="filter-pill">En progression</button>
+            <button class="filter-pill">À risque</button>
+            <button class="filter-pill">Divergence</button>
+          </div>
+        </div>
+        <table class="team-table">
+          <thead>
+            <tr>
+              <th>Commercial</th>
+              <th>Alignement Top Perf.</th>
+              <th>Copilote utilisé</th>
+              <th>Taux closing</th>
+              <th>Delta M-1</th>
+              <th>Statut</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="rep-info">
+                  <div class="rep-avatar" style="background:#DBEAFE; color:#1D4ED8;">MD</div>
+                  <div><div class="rep-name">Marie D.</div><div class="rep-role">Account Executive</div></div>
+                </div>
+              </td>
+              <td>
+                <div class="circle-wrap">
+                  <svg class="circ-svg" viewBox="0 0 40 40">
+                    <circle class="circ-bg" cx="20" cy="20" r="15.9"/>
+                    <circle class="circ-fill green" cx="20" cy="20" r="15.9" style="stroke-dashoffset: 9;"/>
+                  </svg>
+                  <div class="circ-label">91%</div>
+                </div>
+              </td>
+              <td>
+                <div class="bar-mini"><div class="bar-mini-fill blue" style="width:87%;"></div></div>
+                <div class="mini-stat">87%</div>
+              </td>
+              <td><span style="font-size:13.5px; font-weight:600; color:var(--text-1);">34%</span></td>
+              <td><span style="font-size:12px; font-weight:600; color:var(--green);">+11 pts</span></td>
+              <td><span class="status-badge badge-green"><span class="dot"></span>En progression</span></td>
+              <td><button class="action-link">Profil →</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="rep-info">
+                  <div class="rep-avatar" style="background:#FEF3C7; color:#D97706;">SB</div>
+                  <div><div class="rep-name">Sarah B.</div><div class="rep-role">Account Executive</div></div>
+                </div>
+              </td>
+              <td>
+                <div class="circle-wrap">
+                  <svg class="circ-svg" viewBox="0 0 40 40">
+                    <circle class="circ-bg" cx="20" cy="20" r="15.9"/>
+                    <circle class="circ-fill blue" cx="20" cy="20" r="15.9" style="stroke-dashoffset: 12;"/>
+                  </svg>
+                  <div class="circ-label">88%</div>
+                </div>
+              </td>
+              <td>
+                <div class="bar-mini"><div class="bar-mini-fill blue" style="width:79%;"></div></div>
+                <div class="mini-stat">79%</div>
+              </td>
+              <td><span style="font-size:13.5px; font-weight:600; color:var(--text-1);">26%</span></td>
+              <td><span style="font-size:12px; font-weight:600; color:var(--red);">−2 pts</span></td>
+              <td><span class="status-badge badge-purple"><span class="dot"></span>Divergence</span></td>
+              <td><button class="action-link">Profil →</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="rep-info">
+                  <div class="rep-avatar" style="background:#F0FDF4; color:#059669;">MT</div>
+                  <div><div class="rep-name">Marc T.</div><div class="rep-role">Senior AE</div></div>
+                </div>
+              </td>
+              <td>
+                <div class="circle-wrap">
+                  <svg class="circ-svg" viewBox="0 0 40 40">
+                    <circle class="circ-bg" cx="20" cy="20" r="15.9"/>
+                    <circle class="circ-fill green" cx="20" cy="20" r="15.9" style="stroke-dashoffset: 23;"/>
+                  </svg>
+                  <div class="circ-label">77%</div>
+                </div>
+              </td>
+              <td>
+                <div class="bar-mini"><div class="bar-mini-fill green" style="width:93%;"></div></div>
+                <div class="mini-stat">93%</div>
+              </td>
+              <td><span style="font-size:13.5px; font-weight:600; color:var(--text-1);">29%</span></td>
+              <td><span style="font-size:12px; font-weight:600; color:var(--green);">+19 pts</span></td>
+              <td><span class="status-badge badge-green"><span class="dot"></span>En progression</span></td>
+              <td><button class="action-link">Profil →</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="rep-info">
+                  <div class="rep-avatar" style="background:#FEF2F2; color:#DC2626;">TK</div>
+                  <div><div class="rep-name">Thomas K.</div><div class="rep-role">Account Executive</div></div>
+                </div>
+              </td>
+              <td>
+                <div class="circle-wrap">
+                  <svg class="circ-svg" viewBox="0 0 40 40">
+                    <circle class="circ-bg" cx="20" cy="20" r="15.9"/>
+                    <circle class="circ-fill amber" cx="20" cy="20" r="15.9" style="stroke-dashoffset: 33;"/>
+                  </svg>
+                  <div class="circ-label">67%</div>
+                </div>
+              </td>
+              <td>
+                <div class="bar-mini"><div class="bar-mini-fill amber" style="width:41%;"></div></div>
+                <div class="mini-stat" style="color:var(--red);">41% ⚠</div>
+              </td>
+              <td><span style="font-size:13.5px; font-weight:600; color:var(--text-1);">18%</span></td>
+              <td><span style="font-size:12px; font-weight:600; color:var(--red);">−3 pts</span></td>
+              <td><span class="status-badge badge-red"><span class="dot"></span>À risque</span></td>
+              <td><button class="action-link">Profil →</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="rep-info">
+                  <div class="rep-avatar" style="background:#EFF4FF; color:#1D4ED8;">SL</div>
+                  <div><div class="rep-name">Sophie L.</div><div class="rep-role">SDR Senior</div></div>
+                </div>
+              </td>
+              <td>
+                <div class="circle-wrap">
+                  <svg class="circ-svg" viewBox="0 0 40 40">
+                    <circle class="circ-bg" cx="20" cy="20" r="15.9"/>
+                    <circle class="circ-fill red" cx="20" cy="20" r="15.9" style="stroke-dashoffset: 52;"/>
+                  </svg>
+                  <div class="circ-label">48%</div>
+                </div>
+              </td>
+              <td>
+                <div class="bar-mini"><div class="bar-mini-fill amber" style="width:28%;"></div></div>
+                <div class="mini-stat" style="color:var(--red);">28% ⚠</div>
+              </td>
+              <td><span style="font-size:13.5px; font-weight:600; color:var(--text-1);">14%</span></td>
+              <td><span style="font-size:12px; font-weight:600; color:var(--red);">−5 pts</span></td>
+              <td><span class="status-badge badge-red"><span class="dot"></span>À risque</span></td>
+              <td><button class="action-link">Profil →</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Radar -->
+      <div class="radar-card">
+        <div class="card-header" style="margin-bottom:0;">
+          <div>
+            <div class="card-title">Radar d'alignement</div>
+            <div class="card-sub">Équipe vs Top Performers</div>
+          </div>
+        </div>
+        <div class="radar-filters">
+          <button class="radar-filter active">1 mois</button>
+          <button class="radar-filter">1 trimestre</button>
+          <button class="radar-filter">1 an</button>
+          <button class="radar-filter">Time-lapse</button>
+        </div>
+        <div class="radar-svg-wrap">
+          <svg width="240" height="230" viewBox="0 0 240 230">
+            <!-- Grid circles -->
+            <g transform="translate(120,115)">
+              <polygon points="0,-90 77.9,-45 77.9,45 0,90 -77.9,45 -77.9,-45" fill="none" stroke="#E2E7EF" stroke-width="1"/>
+              <polygon points="0,-67.5 58.4,-33.75 58.4,33.75 0,67.5 -58.4,33.75 -58.4,-33.75" fill="none" stroke="#E2E7EF" stroke-width="1"/>
+              <polygon points="0,-45 38.97,-22.5 38.97,22.5 0,45 -38.97,22.5 -38.97,-22.5" fill="none" stroke="#E2E7EF" stroke-width="1"/>
+              <polygon points="0,-22.5 19.49,-11.25 19.49,11.25 0,22.5 -19.49,11.25 -19.49,-11.25" fill="none" stroke="#E2E7EF" stroke-width="1"/>
+              <!-- Axis lines -->
+              <line x1="0" y1="0" x2="0" y2="-90" stroke="#D0D7E3" stroke-width="1"/>
+              <line x1="0" y1="0" x2="77.9" y2="-45" stroke="#D0D7E3" stroke-width="1"/>
+              <line x1="0" y1="0" x2="77.9" y2="45" stroke="#D0D7E3" stroke-width="1"/>
+              <line x1="0" y1="0" x2="0" y2="90" stroke="#D0D7E3" stroke-width="1"/>
+              <line x1="0" y1="0" x2="-77.9" y2="45" stroke="#D0D7E3" stroke-width="1"/>
+              <line x1="0" y1="0" x2="-77.9" y2="-45" stroke="#D0D7E3" stroke-width="1"/>
+
+              <!-- Top performer polygon (golden reference) -->
+              <polygon
+                points="0,-84 72,-41 72,43 0,83 -72,43 -72,-41"
+                fill="rgba(245,158,11,0.08)"
+                stroke="#D97706"
+                stroke-width="1.5"
+                stroke-dasharray="5,3"
+              />
+
+              <!-- Team 3 months ago (ghost) -->
+              <polygon
+                points="0,-49 42.4,-24.5 46,26 0,54 -43,27 -47,-25"
+                fill="none"
+                stroke="#CBD5E1"
+                stroke-width="1.5"
+                stroke-dasharray="3,3"
+              />
+
+              <!-- Current team polygon (blue solid) -->
+              <polygon
+                points="0,-67 58,-34 62,37 0,70 -60,37 -57,-33"
+                fill="rgba(29,78,216,0.1)"
+                stroke="#1D4ED8"
+                stroke-width="2"
+              />
+
+              <!-- Axis labels -->
+              <text x="0" y="-98" text-anchor="middle" font-size="10" fill="#64748B" font-family="Inter" font-weight="500">Découverte</text>
+              <text x="88" y="-50" text-anchor="start" font-size="10" fill="#64748B" font-family="Inter" font-weight="500">Objection prix</text>
+              <text x="88" y="54" text-anchor="start" font-size="10" fill="#64748B" font-family="Inter" font-weight="500">Posture</text>
+              <text x="0" y="108" text-anchor="middle" font-size="10" fill="#64748B" font-family="Inter" font-weight="500">Pitch</text>
+              <text x="-88" y="54" text-anchor="end" font-size="10" fill="#64748B" font-family="Inter" font-weight="500">Teaching</text>
+              <text x="-88" y="-50" text-anchor="end" font-size="10" fill="#64748B" font-family="Inter" font-weight="500">Closing</text>
+            </g>
+          </svg>
+        </div>
+        <div class="radar-legend">
+          <div class="radar-leg-item"><div class="radar-leg-line" style="background:#1D4ED8;"></div>Équipe (maintenant)</div>
+          <div class="radar-leg-item"><div class="radar-leg-line" style="background:#D97706; border-top: 2px dashed #D97706; height:0;"></div>Top Performers</div>
+          <div class="radar-leg-item"><div class="radar-leg-line" style="background:#CBD5E1; border-top: 2px dashed #CBD5E1; height:0;"></div>Il y a 3 mois</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 4 : RECRUTEMENT ── -->
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-icon" style="background:#FFFBEB;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L8.3 5.2H12.2L9 7.4L10.1 11.1L7 8.9L3.9 11.1L5 7.4L1.8 5.2H5.7L7 1.5Z" stroke="#D97706" stroke-width="1.3" fill="none"/></svg>
+        </div>
+        Pipeline de recrutement
+      </div>
+    </div>
+
+    <div class="recruit-row">
+      <div class="recruit-stat">
+        <div class="recruit-stat-num">23</div>
+        <div class="recruit-stat-label">Candidatures reçues ce mois</div>
+      </div>
+      <div class="recruit-stat">
+        <div class="recruit-stat-num" style="color:var(--blue);">17</div>
+        <div class="recruit-stat-label">Évaluées automatiquement (QCM + simulation)</div>
+        <div class="recruit-stat-impact">↳ 0 heure mobilisée avant la décision finale</div>
+      </div>
+      <div class="recruit-stat">
+        <div class="recruit-stat-num" style="color:var(--green);">4</div>
+        <div class="recruit-stat-label">Profils qualifiés · prêts à rencontrer</div>
+        <div class="recruit-stat-impact">Taux de filtrage automatique : 83%</div>
+      </div>
+    </div>
+
+    <div class="funnel-row">
+      <div class="funnel-step">
+        <div class="funnel-label">Candidatures reçues</div>
+        <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:100%; background:#1D4ED8;"></div></div>
+        <div class="funnel-num">23</div>
+        <div class="funnel-pct"></div>
+      </div>
+      <div class="funnel-step">
+        <div class="funnel-label">Simulation complétée</div>
+        <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:74%; background:#3B82F6;"></div></div>
+        <div class="funnel-num">17</div>
+        <div class="funnel-pct" style="color:var(--text-3);">−26%</div>
+      </div>
+      <div class="funnel-step">
+        <div class="funnel-label">Seuil de qualification atteint</div>
+        <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:26%; background:#059669;"></div></div>
+        <div class="funnel-num">4</div>
+        <div class="funnel-pct" style="color:var(--text-3);">−76%</div>
+      </div>
+      <div class="funnel-step">
+        <div class="funnel-label">Entretien humain planifié</div>
+        <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:13%; background:#D97706;"></div></div>
+        <div class="funnel-num">2</div>
+        <div class="funnel-pct" style="color:var(--text-3);">−87%</div>
+      </div>
+    </div>
+
+    <div class="ats-table-wrap">
+      <table class="ats-table">
+        <thead>
+          <tr>
+            <th>Candidat</th>
+            <th>Poste</th>
+            <th>QCM Fondamentaux</th>
+            <th>Fit comportemental</th>
+            <th>Simulateur vocal</th>
+            <th>Alignement Top Perf.</th>
+            <th>Replay moment critique</th>
+            <th>Recommandation IA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="rep-info">
+                <div class="rep-avatar" style="background:#DBEAFE; color:#1D4ED8; font-size:11px;">AT</div>
+                <div><div class="rep-name">Antoine R.</div></div>
+              </div>
+            </td>
+            <td style="font-size:12px; color:var(--text-2);">AE Mid-Market</td>
+            <td><span class="score-pill score-high">94%</span></td>
+            <td><span style="font-size:12px; color:var(--text-2);">Consultatif · Structuré</span></td>
+            <td><span class="score-pill score-high">89%</span></td>
+            <td>
+              <div class="circle-wrap">
+                <svg class="circ-svg" viewBox="0 0 40 40" style="width:32px;height:32px;">
+                  <circle class="circ-bg" cx="20" cy="20" r="15.9"/>
+                  <circle class="circ-fill green" cx="20" cy="20" r="15.9" style="stroke-dashoffset:14;"/>
+                </svg>
+                <span style="font-size:12.5px; font-weight:600;">86%</span>
+              </div>
+            </td>
+            <td><button class="replay-btn"><svg class="play-icon" viewBox="0 0 12 12" fill="currentColor"><path d="M3 2.5l7 3.5-7 3.5V2.5z"/></svg>Objection prix (0:32)</button></td>
+            <td><span class="status-badge badge-green"><span class="dot"></span>À rencontrer · Top 5%</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="rep-info">
+                <div class="rep-avatar" style="background:#F0FDF4; color:#059669; font-size:11px;">LM</div>
+                <div><div class="rep-name">Lucie M.</div></div>
+              </div>
+            </td>
+            <td style="font-size:12px; color:var(--text-2);">SDR</td>
+            <td><span class="score-pill score-high">88%</span></td>
+            <td><span style="font-size:12px; color:var(--text-2);">Chasseur · Résilient</span></td>
+            <td><span class="score-pill score-high">79%</span></td>
+            <td>
+              <div class="circle-wrap">
+                <svg class="circ-svg" viewBox="0 0 40 40" style="width:32px;height:32px;">
+                  <circle class="circ-bg" cx="20" cy="20" r="15.9"/>
+                  <circle class="circ-fill blue" cx="20" cy="20" r="15.9" style="stroke-dashoffset:22;"/>
+                </svg>
+                <span style="font-size:12.5px; font-weight:600;">78%</span>
+              </div>
+            </td>
+            <td><button class="replay-btn"><svg class="play-icon" viewBox="0 0 12 12" fill="currentColor"><path d="M3 2.5l7 3.5-7 3.5V2.5z"/></svg>Négociation (0:28)</button></td>
+            <td><span class="status-badge badge-green"><span class="dot"></span>À rencontrer</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="rep-info">
+                <div class="rep-avatar" style="background:#FFFBEB; color:#D97706; font-size:11px;">JM</div>
+                <div><div class="rep-name">Julie M.</div></div>
+              </div>
+            </td>
+            <td style="font-size:12px; color:var(--text-2);">AE Mid-Market</td>
+            <td><span class="score-pill score-mid">72%</span></td>
+            <td><span style="font-size:12px; color:var(--text-2);">Analytique</span></td>
+            <td><span class="score-pill score-mid">62%</span></td>
+            <td>
+              <div class="circle-wrap">
+                <svg class="circ-svg" viewBox="0 0 40 40" style="width:32px;height:32px;">
+                  <circle class="circ-bg" cx="20" cy="20" r="15.9"/>
+                  <circle class="circ-fill amber" cx="20" cy="20" r="15.9" style="stroke-dashoffset:37;"/>
+                </svg>
+                <span style="font-size:12.5px; font-weight:600;">63%</span>
+              </div>
+            </td>
+            <td><button class="replay-btn"><svg class="play-icon" viewBox="0 0 12 12" fill="currentColor"><path d="M3 2.5l7 3.5-7 3.5V2.5z"/></svg>Cède sur remise (0:41)</button></td>
+            <td><span class="status-badge badge-amber"><span class="dot"></span>Vivier · À creuser</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="rep-info">
+                <div class="rep-avatar" style="background:#FEF2F2; color:#DC2626; font-size:11px;">LT</div>
+                <div><div class="rep-name">Luc T.</div></div>
+              </div>
+            </td>
+            <td style="font-size:12px; color:var(--text-2);">SDR</td>
+            <td><span class="score-pill score-low">52%</span></td>
+            <td><span style="font-size:12px; color:var(--text-2);">Non adapté</span></td>
+            <td><span class="score-pill score-low">31%</span></td>
+            <td>
+              <div class="circle-wrap">
+                <svg class="circ-svg" viewBox="0 0 40 40" style="width:32px;height:32px;">
+                  <circle class="circ-bg" cx="20" cy="20" r="15.9"/>
+                  <circle class="circ-fill red" cx="20" cy="20" r="15.9" style="stroke-dashoffset:66;"/>
+                </svg>
+                <span style="font-size:12.5px; font-weight:600;">34%</span>
+              </div>
+            </td>
+            <td><button class="replay-btn"><svg class="play-icon" viewBox="0 0 12 12" fill="currentColor"><path d="M3 2.5l7 3.5-7 3.5V2.5z"/></svg>Raccrochage (0:19)</button></td>
+            <td><span class="status-badge badge-red"><span class="dot"></span>Écarté automatiquement</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── SECTION 5 : COCKPIT COACHING ── -->
+    <div class="section-header">
+      <div class="section-title">
+        <div class="section-icon" style="background:#F5F3FF;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z" stroke="#7C3AED" stroke-width="1.4"/><path d="M4.5 9.5C4.5 9.5 5.5 7 7 7s2.5 2.5 2.5 2.5" stroke="#7C3AED" stroke-width="1.4" stroke-linecap="round"/><circle cx="5.5" cy="5.5" r="0.7" fill="#7C3AED"/><circle cx="8.5" cy="5.5" r="0.7" fill="#7C3AED"/></svg>
+        </div>
+        Cockpit coaching — Autopsies des appels réels
+      </div>
+      <button class="btn btn-ghost" style="font-size:11.5px; padding:5px 12px;">Voir tous les débriefs</button>
+    </div>
+
+    <div class="coaching-card">
+      <div class="debrief-item">
+        <div class="debrief-top">
+          <div>
+            <div class="debrief-meta">
+              <div class="debrief-title">Marc V. vs DAF Prospect — Groupe Heliox</div>
+              <span class="deal-amount">Deal 50 000 € · Signé</span>
+              <span class="status-badge badge-green" style="font-size:11px;"><span class="dot"></span>Gagné</span>
+            </div>
+            <div style="font-size:11.5px; color:var(--text-3); margin-top:4px;">Avant-hier · 47 min · Copilote actif</div>
+          </div>
+          <div class="ai-badges">
+            <span class="ai-badge-item">🔥 Deal sauvé</span>
+            <span class="ai-badge-item">🎯 9 questions d'impact</span>
+            <span class="ai-badge-item">🔇 Silence 4,2s au closing</span>
+            <span class="ai-badge-item">✅ 7/8 suggestions suivies</span>
+          </div>
+        </div>
+        <div class="debrief-quant">
+          <div class="dq-item">
+            <div class="dq-num" style="color:var(--blue);">58%</div>
+            <div class="dq-label">Temps de parole prospect</div>
+          </div>
+          <div class="dq-item">
+            <div class="dq-num">9</div>
+            <div class="dq-label">Questions d'impact posées</div>
+          </div>
+          <div class="dq-item">
+            <div class="dq-num" style="color:var(--green);">3/3</div>
+            <div class="dq-label">Objections traitées</div>
+          </div>
+          <div class="dq-item">
+            <div class="dq-num" style="color:var(--green);">7/8</div>
+            <div class="dq-label">Suggestions IA suivies</div>
+          </div>
+        </div>
+        <div class="debrief-qual">
+          <strong>Analyse IA :</strong> Marc a identifié le profil Analytique/Prudent du DAF dès la 8e minute. Il n'a pas survendu, mais a posé 3 questions orientées sur le <strong>coût de l'inaction</strong>. Sur l'objection tarifaire à la 32e minute, il a maintenu un ton descendant et gardé <strong>4,2 secondes de silence</strong>, forçant le DAF à justifier lui-même l'écart de budget. Séquence recommandée à injecter dans le parcours collectif.
+        </div>
+        <div class="debrief-actions">
+          <button class="replay-btn"><svg class="play-icon" viewBox="0 0 12 12" fill="currentColor"><path d="M3 2.5l7 3.5-7 3.5V2.5z"/></svg>Moment clé (0:45)</button>
+          <button class="btn btn-ghost" style="font-size:11.5px; padding:5px 12px;">Injecter dans un parcours</button>
+          <button class="btn btn-ghost" style="font-size:11.5px; padding:5px 12px;">Partager avec l'équipe</button>
+        </div>
+      </div>
+
+      <div class="debrief-item">
+        <div class="debrief-top">
+          <div>
+            <div class="debrief-meta">
+              <div class="debrief-title">Thomas K. vs DRH Prospect — Medaxis SA</div>
+              <span class="deal-amount">Deal 28 000 € · Perdu</span>
+              <span class="status-badge badge-red" style="font-size:11px;"><span class="dot"></span>Perdu</span>
+            </div>
+            <div style="font-size:11.5px; color:var(--text-3); margin-top:4px;">Hier · 31 min · Copilote inactif</div>
+          </div>
+          <div class="ai-badges">
+            <span class="ai-badge-item">⚠️ Copilote non activé</span>
+            <span class="ai-badge-item">📉 Remise −18% concédée</span>
+            <span class="ai-badge-item">❌ Closing non tenté</span>
+          </div>
+        </div>
+        <div class="debrief-quant">
+          <div class="dq-item">
+            <div class="dq-num" style="color:var(--red);">74%</div>
+            <div class="dq-label">Temps de parole Thomas</div>
+          </div>
+          <div class="dq-item">
+            <div class="dq-num" style="color:var(--red);">2</div>
+            <div class="dq-label">Questions d'impact posées</div>
+          </div>
+          <div class="dq-item">
+            <div class="dq-num" style="color:var(--amber);">1/3</div>
+            <div class="dq-label">Objections traitées</div>
+          </div>
+          <div class="dq-item">
+            <div class="dq-num" style="color:var(--red);">−18%</div>
+            <div class="dq-label">Remise concédée</div>
+          </div>
+        </div>
+        <div class="debrief-qual" style="border-left-color: var(--red); background: linear-gradient(135deg, #FFF5F5, #FFF0F0);">
+          <strong>Analyse IA :</strong> Thomas a monopolisé la parole (74%) et n'a posé que 2 questions de découverte. Face à la première objection prix à la 14e minute, il a immédiatement proposé une remise de 18% sans ancrage de valeur préalable. <strong>Le closing n'a pas été tenté</strong>. L'IA avait généré 4 suggestions en temps réel — aucune n'a été suivie (copilote non activé). Corrélation directe avec l'absence d'utilisation du copilote ce mois-ci.
+        </div>
+        <div class="debrief-actions">
+          <button class="replay-btn"><svg class="play-icon" viewBox="0 0 12 12" fill="currentColor"><path d="M3 2.5l7 3.5-7 3.5V2.5z"/></svg>Moment objection prix (1:14)</button>
+          <button class="btn btn-primary" style="font-size:11.5px; padding:5px 14px;">Envoyer le point de suivi</button>
+          <button class="btn btn-ghost" style="font-size:11.5px; padding:5px 12px;">Activer parcours correctif</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Animate circular progress on load
+  document.addEventListener('DOMContentLoaded', () => {
+    // Animate circ fills
+    requestAnimationFrame(() => {
+      const fills = document.querySelectorAll('.circ-fill');
+      fills.forEach(el => {
+        const current = parseFloat(el.style.strokeDashoffset);
+        el.style.strokeDashoffset = 100;
+        setTimeout(() => {
+          el.style.strokeDashoffset = current;
+        }, 80);
+      });
+    });
+
+    // Period tabs
+    document.querySelectorAll('.period-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+
+    // Filter pills
+    document.querySelectorAll('.filter-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const group = pill.closest('.filter-pills');
+        group.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+      });
+    });
+
+    // Radar filters
+    document.querySelectorAll('.radar-filter').forEach(f => {
+      f.addEventListener('click', () => {
+        document.querySelectorAll('.radar-filter').forEach(x => x.classList.remove('active'));
+        f.classList.add('active');
+      });
+    });
+  });
+</script>
+</body>
+</html>
