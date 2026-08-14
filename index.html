@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Directeur Commercial — IA Vocale</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #EEF1F6;
+            --surface: #FFFFFF;
+            --surface-2: #F5F7FA;
+            --border: #E2E7EF;
+            --border-2: #D0D7E3;
+            --blue: #1D4ED8;
+            --blue-light: #EFF4FF;
+            --blue-mid: #DBEAFE;
+            --green: #059669;
+            --green-light: #ECFDF5;
+            --amber: #D97706;
+            --amber-light: #FFFBEB;
+            --red: #DC2626;
+            --red-light: #FEF2F2;
+            --purple: #7C3AED;
+            --purple-light: #F5F3FF;
+            --text-1: #0F172A;
+            --text-2: #334155;
+            --text-3: #64748B;
+            --text-4: #94A3B8;
+            --sidebar-w: 64px;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+            --shadow-md: 0 4px 12px rgba(15,23,42,0.08), 0 2px 4px rgba(15,23,42,0.04);
+        }
+        html { font-size: 14px; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text-1);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        /* ── SIDEBAR ────────────────────────────────────── */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--text-1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 14px 0 18px;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+            gap: 4px;
+        }
+        .sidebar-logo {
+            width: 32px; height: 32px;
+            background: var(--blue);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+        .sidebar-logo svg { width: 18px; height: 18px; }
+        .sb-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            color: #94A3B8;
+            background: transparent;
+            border: none;
+            position: relative;
+            margin-bottom: 4px;
+        }
+        .sb-icon:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .sb-icon.active { background: rgba(29,78,216,0.3); color: #60A5FA; }
+        .sb-icon svg { width: 18px; height: 18px; }
+        .sb-tooltip {
+            position: absolute;
+            left: 48px;
+            background: var(--text-1);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
+            z-index: 120;
+        }
+        .sb-icon:hover .sb-tooltip { opacity: 1; }
+        .sidebar-divider { width: 24px; height: 1px; background: rgba(255,255,255,0.08); margin: 6px 0; }
+        .sidebar-spacer { flex: 1; }
+        .sb-avatar {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 600; color: #fff;
+            cursor: pointer;
+        }
+        /* ── MAIN ────────────────────────────────────────── */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            height: 100vh;
+        }
+        /* ── TOPBAR ──────────────────────────────────────── */
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 20px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 50;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .topbar-title { font-size: 14px; font-weight: 600; color: var(--text-1); }
+        .topbar-sub { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+        .topbar-right { display: flex; align-items: center; gap: 8px; }
+        .period-tabs {
+            display: flex;
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 2px;
+            gap: 2px;
+        }
+        .period-tab {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-3);
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .period-tab.active { background: var(--surface); color: var(--text-1); box-shadow: var(--shadow); }
+        .live-pill {
+            display: flex; align-items: center; gap: 5px;
+            background: var(--green-light);
+            border: 1px solid #A7F3D0;
+            border-radius: 20px;
+            padding: 4px 10px 4px 7px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--green);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .live-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse-green 2s infinite; }
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.85); }
+        }
+        .btn {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 11.5px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .btn-ghost { background: transparent; color: var(--text-2); border: 1px solid var(--border-2); }
+        .btn-ghost:hover { background: var(--bg); }
+        .btn-primary { background: var(--blue); color: white; }
+        .btn-primary:hover { background: #1E40AF; }
+        /* ── CONTENT ─────────────────────────────────────── */
+        .content {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 12px 20px 12px;
+        }
+        /* ── TAB NAV ─────────────────────────────────────── */
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            background: var(--surface);
+            border-radius: var(--radius-sm);
+            padding: 4px;
+            box-shadow: var(--shadow);
+            flex-shrink: 0;
+            width: fit-content;
+            margin: 0 auto;
+        }
+        .tab-btn {
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-3);
+            transition: all 0.15s;
+        }
+        .tab-btn.active { background: var(--blue); color: white; box-shadow: var(--shadow); }
+        .tab-content { flex: 1; overflow: hidden; display: none; }
+        .tab-content.active { display: flex; flex-direction: column; gap: 12px; }
+        /* ── AI FEED ─────────────────────────────────────── */
+        .ai-feed {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 12px 16px;
+            box-shadow: var(--shadow);
+            flex-shrink: 0;
+        }
+        .ai-feed-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .ai-feed-label { display: flex; align-items: center; gap: 7px; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); }
+        .ai-badge { background: linear-gradient(135deg, #1D4ED8, #7C3AED); color: white; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.04em; }
+        .feed-cards { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+        .feed-cards::-webkit-scrollbar { display: none; }
+        .feed-card {
+            flex-shrink: 0;
+            width: 300px;
+            border-radius: 10px;
+            padding: 12px 14px;
+            border: 1px solid transparent;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+        .feed-card:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+        .feed-card.type-opp { background: var(--green-light); border-color: #BBF7D0; }
+        .feed-card.type-warn { background: var(--amber-light); border-color: #FDE68A; }
+        .feed-card.type-alert { background: var(--red-light); border-color: #FECACA; }
+        .feed-card.type-info { background: var(--blue-light); border-color: var(--blue-mid); }
+        .feed-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .feed-tag.opp { color: var(--green); }
+        .feed-tag.warn { color: var(--amber); }
+        .feed-tag.alert { color: var(--red); }
+        .feed-tag.info { color: var(--blue); }
+        .feed-text { font-size: 12px; line-height: 1.5; color: var(--text-2); }
+        .feed-text strong { color: var(--text-1); font-weight: 600; }
+        .feed-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .feed-btn { font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 6px; cursor: pointer; border: none; transition: all 0.15s; }
+        .feed-btn.primary-action { background: var(--text-1); color: white; }
+        .feed-btn.primary-action:hover { background: var(--blue); }
+        .feed-btn.secondary-action { background: rgba(0,0,0,0.06); color: var(--text-2); }
+        .feed-btn.secondary-action:hover { background: rgba(0,0,0,0.10); }
+        /* ── ROI BLOCK ───────────────────────────────────── */
+        .roi-block { display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
+        .roi-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .roi-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 12px 14px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .roi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .roi-card.accent-green::before { background: var(--green); }
+        .roi-card.accent-blue::before { background: var(--blue); }
+        .roi-card.accent-amber::before { background: var(--amber); }
+        .roi-card.accent-purple::before { background: var(--purple); }
+        .roi-label { font-size: 10px; font-weight: 500; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; }
+        .roi-value { font-size: 22px; font-weight: 700; color: var(--text-1); line-height: 1.1; letter-spacing: -0.02em; }
+        .roi-value span.unit { font-size: 14px; font-weight: 600; }
+        .roi-delta { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 500; }
+        .roi-delta.up { color: var(--green); }
+        .roi-delta.neutral { color: var(--amber); }
+        .roi-sub { font-size: 10px; color: var(--text-3); line-height: 1.4; }
+        .roi-cta { margin-top: 2px; font-size: 11px; font-weight: 500; color: var(--blue); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; background: none; border: none; padding: 0; text-align: left; }
+        .roi-cta:hover { text-decoration: underline; }
+        /* ── CORRELATION CHART ───────────────────────────── */
+        .correlation-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 12px 16px; box-shadow: var(--shadow); flex-shrink: 0; }
+        .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+        .card-title { font-size: 13px; font-weight: 600; color: var(--text-1); }
+        .card-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+        .chart-legend { display: flex; gap: 12px; align-items: center; }
+        .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--text-3); }
+        .legend-dot { width: 7px; height: 7px; border-radius: 50%; }
+        .chart-area { position: relative; height: 110px; }
+        .chart-svg { width: 100%; height: 100%; overflow: visible; }
+        /* ── GRID LAYOUTS ──────────────────────────────── */
+        .grid-2 { display: grid; grid-template-columns: 1fr 380px; gap: 12px; min-height: 0; flex: 1; }
+        /* ── TEAM MATRIX ─────────────────────────────────── */
+        .team-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; }
+        .team-card-header { padding: 10px 16px 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+        .filter-pills { display: flex; gap: 5px; }
+        .filter-pill { padding: 3px 10px; border-radius: 20px; font-size: 10.5px; font-weight: 500; cursor: pointer; border: 1px solid var(--border-2); background: transparent; color: var(--text-3); transition: all 0.15s; }
+        .filter-pill.active { background: var(--blue); color: white; border-color: var(--blue); }
+        .team-table-wrap { flex: 1; overflow-y: auto; min-height: 0; }
+        .team-table { width: 100%; border-collapse: collapse; }
+        .team-table thead tr { background: var(--surface-2); position: sticky; top: 0; }
+        .team-table th { padding: 8px 12px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); text-align: left; border-bottom: 1px solid var(--border); }
+        .team-table th:first-child { padding-left: 16px; }
+        .team-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; cursor: pointer; }
+        .team-table tbody tr:hover { background: var(--surface-2); }
+        .team-table tbody tr:last-child { border-bottom: none; }
+        .team-table td { padding: 8px 12px; vertical-align: middle; font-size: 12px; }
+        .team-table td:first-child { padding-left: 16px; }
+        .rep-info { display: flex; align-items: center; gap: 8px; }
+        .rep-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+        .rep-name { font-size: 12px; font-weight: 500; color: var(--text-1); }
+        .rep-role { font-size: 10px; color: var(--text-3); margin-top: 1px; }
+        .circle-wrap { display: flex; align-items: center; gap: 8px; }
+        .circ-svg { width: 30px; height: 30px; transform: rotate(-90deg); flex-shrink: 0; }
+        .circ-bg { fill: none; stroke: var(--border); stroke-width: 3; }
+        .circ-fill { fill: none; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .circ-fill.green { stroke: var(--green); }
+        .circ-fill.blue { stroke: var(--blue); }
+        .circ-fill.amber { stroke: var(--amber); }
+        .circ-fill.red { stroke: var(--red); }
+        .circ-label { font-size: 11px; font-weight: 600; color: var(--text-1); }
+        .bar-mini { width: 100%; max-width: 70px; height: 4px; background: var(--border); border-radius: 3px; overflow: hidden; }
+        .bar-mini-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+        .bar-mini-fill.blue { background: var(--blue); }
+        .bar-mini-fill.green { background: var(--green); }
+        .bar-mini-fill.amber { background: var(--amber); }
+        .mini-stat { font-size: 11px; font-weight: 500; color: var(--text-2); margin-top: 3px; }
+        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 6px; border-radius: 20px; font-size: 10px; font-weight: 500; }
+        .status-badge .dot { width: 4px; height: 4px; border-radius: 50%; }
+        .badge-green { background: var(--green-light); color: var(--green); }
+        .badge-green .dot { background: var(--green); }
+        .badge-amber { background: var(--amber-light); color: var(--amber); }
+        .badge-amber .dot { background: var(--amber); }
+        .badge-red { background: var(--red-light); color: var(--red); }
+        .badge-red .dot { background: var(--red); }
+        .badge-purple { background: var(--purple-light); color: var(--purple); }
+        .badge-purple .dot { background: var(--purple); }
+        .action-link { font-size: 11px; font-weight: 500; color: var(--blue); cursor: pointer; background: none; border: none; padding: 0; display: inline-flex; align-items: center; gap: 3px; }
+        .action-link:hover { text-decoration: underline; }
+        /* ── RADAR ───────────────────────────────────────── */
+        .radar-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 12px 14px; display: flex; flex-direction: column; }
+        .radar-filters { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
+        .radar-filter { padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 500; cursor: pointer; border: 1px solid var(--border-2); background: transparent; color: var(--text-3); transition: all 0.12s; }
+        .radar-filter.active { background: var(--blue); color: white; border-color: var(--blue); }
+        .radar-svg-wrap { display: flex; justify-content: center; margin: 8px 0 6px; flex: 1; min-height: 0; }
+        .radar-legend { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .radar-leg-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--text-3); }
+        .radar-leg-line { width: 14px; height: 2.5px; border-radius: 2px; }
+        /* ── RECRUITMENT ─────────────────────────────────── */
+        .recruit-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; flex-shrink: 0; }
+        .recruit-stat { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; }
+        .recruit-stat-num { font-size: 20px; font-weight: 700; color: var(--text-1); letter-spacing: -0.02em; }
+        .recruit-stat-label { font-size: 11px; color: var(--text-3); }
+        .recruit-stat-impact { font-size: 10.5px; color: var(--green); font-weight: 500; margin-top: 3px; }
+        .funnel-row { display: flex; flex-direction: column; gap: 5px; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 12px 16px; flex-shrink: 0; }
+        .funnel-step { display: flex; align-items: center; gap: 10px; }
+        .funnel-label { font-size: 11px; color: var(--text-2); width: 180px; flex-shrink: 0; }
+        .funnel-bar-bg { flex: 1; height: 6px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+        .funnel-bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+        .funnel-num { font-size: 11.5px; font-weight: 600; color: var(--text-1); width: 30px; text-align: right; }
+        .funnel-pct { font-size: 10px; color: var(--text-3); width: 38px; }
+        .ats-table-wrap { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; flex: 1; min-height: 0; }
+        .ats-table { width: 100%; border-collapse: collapse; }
+        .ats-table th { padding: 8px 12px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); text-align: left; background: var(--surface-2); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 2; }
+        .ats-table th:first-child { padding-left: 16px; }
+        .ats-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 11.5px; }
+        .ats-table td:first-child { padding-left: 16px; }
+        .ats-table tbody tr:last-child td { border-bottom: none; }
+        .ats-table tbody tr:hover { background: var(--surface-2); }
+        .score-pill { display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+        .score-high { background: var(--green-light); color: var(--green); }
+        .score-mid { background: var(--amber-light); color: var(--amber); }
+        .score-low { background: var(--red-light); color: var(--red); }
+        .replay-btn { display: inline-flex; align-items: center; gap: 5px; background: var(--surface-2); border: 1px solid var(--border-2); border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all 0.15s; }
+        .replay-btn:hover { background: var(--blue); color: white; border-color: var(--blue); }
+        .play-icon { width: 11px; height: 11px; }
+        /* ── COACHING ────────────────────────────────────── */
+        .coaching-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; }
+        .debrief-item { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
+        .debrief-item:last-child { border-bottom: none; }
+        .debrief-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+        .debrief-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .debrief-title { font-size: 13px; font-weight: 600; color: var(--text-1); }
+        .deal-amount { font-size: 11px; font-weight: 600; background: var(--blue-light); color: var(--blue); padding: 2px 8px; border-radius: 5px; }
+        .ai-badges { display: flex; gap: 4px; flex-wrap: wrap; }
+        .ai-badge-item { font-size: 10px; font-weight: 500; padding: 2px 6px; border-radius: 5px; background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); }
+        .debrief-quant { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; background: var(--surface-2); border-radius: 6px; padding: 8px 10px; }
+        .dq-item { display: flex; flex-direction: column; gap: 2px; }
+        .dq-num { font-size: 15px; font-weight: 700; color: var(--text-1); }
+        .dq-label { font-size: 9.5px; color: var(--text-3); }
+        .debrief-qual { font-size: 11.5px; line-height: 1.5; color: var(--text-2); padding: 10px 12px; background: linear-gradient(135deg, #F0F4FF, #F5F3FF); border-radius: 6px; border-left: 3px solid var(--blue); }
+        .debrief-qual strong { color: var(--text-1); font-weight: 600; }
+        .debrief-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        /* ── SECTION HEADERS ─────────────────────────────── */
+        .section-header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+        .section-title { font-size: 12px; font-weight: 600; color: var(--text-1); display: flex; align-items: center; gap: 6px; }
+        .section-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+        /* ── MODAL ───────────────────────────────────────── */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 200;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            width: 600px;
+            max-width: 90%;
+            padding: 20px;
+            display: flex; flex-direction: column; gap: 14px;
+        }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; }
+        .modal-title { font-size: 16px; font-weight: 600; }
+        .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-3); }
+        .modal-body { display: flex; flex-direction: column; gap: 10px; }
+        .modal-row { display: flex; gap: 20px; }
+        .modal-col { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .modal-label { font-size: 10px; font-weight: 600; text-transform: uppercase; color: var(--text-3); }
+        .modal-value { font-size: 14px; font-weight: 500; color: var(--text-1); }
+        /* ── TOAST ───────────────────────────────────────── */
+        .toast {
+            background: var(--text-1);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            box-shadow: var(--shadow-md);
+            animation: fadeInUp 0.3s ease;
+            pointer-events: none;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+        <div class="sidebar-logo">
+            <svg viewBox="0 0 18 18" fill="none"><path d="M9 2L15 5.5V12.5L9 16L3 12.5V5.5L9 2Z" stroke="white" stroke-width="1.5" fill="rgba(255,255,255,0.15)"/><circle cx="9" cy="9" r="2.5" fill="white"/></svg>
+        </div>
+        <button class="sb-icon active" data-view="overview" title="Dashboard">
+            <svg viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="10" y="2" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.4"/><rect x="2" y="10" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.4"/><rect x="10" y="10" width="6" height="6" rx="1.5" fill="currentColor" opacity="0.4"/></svg>
+            <span class="sb-tooltip">Dashboard</span>
+        </button>
+        <button class="sb-icon" data-view="team" title="Équipe">
+            <svg viewBox="0 0 18 18" fill="none"><circle cx="7" cy="6" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M2 15c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="13" cy="6" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M16 15c0-2.21-1.34-4-3-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="sb-tooltip">Équipe</span>
+        </button>
+        <button class="sb-icon" data-view="recruitment" title="Recrutement">
+            <svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M3 16c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12 3l1.5 1.5L16 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="sb-tooltip">Recrutement</span>
+        </button>
+        <button class="sb-icon" data-view="coaching" title="Coaching">
+            <svg viewBox="0 0 18 18" fill="none"><path d="M3 9a6 6 0 1 1 12 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 9v2a1 1 0 0 0 1 1h1V8H4a1 1 0 0 0-1 1zm12 0v2a1 1 0 0 1-1 1h-1V8h1a1 1 0 0 1 1 1z" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span class="sb-tooltip">Coaching</span>
+        </button>
+        <div class="sidebar-divider"></div>
+        <button class="sb-icon" data-view="paths" title="Parcours">
+            <svg viewBox="0 0 18 18" fill="none"><path d="M2 4h14M2 9h10M2 14h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="sb-tooltip">Parcours</span>
+        </button>
+        <button class="sb-icon" data-view="reports" title="Rapports">
+            <svg viewBox="0 0 18 18" fill="none"><rect x="3" y="2" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 6h6M6 9h6M6 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="sb-tooltip">Rapports</span>
+        </button>
+        <div class="sidebar-spacer"></div>
+        <div class="sb-icon" title="Paramètres">
+            <svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M9 2v2M9 14v2M2 9h2M14 9h2M3.93 3.93l1.41 1.41M12.66 12.66l1.41 1.41M3.93 14.07l1.41-1.41M12.66 5.34l1.41-1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="sb-tooltip">Paramètres</span>
+        </div>
+        <div style="height: 10px;"></div>
+        <div class="sb-avatar">JD</div>
+    </nav>
+    <!-- MAIN -->
+    <div class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <div>
+                    <div class="topbar-title">Vue Directeur Commercial</div>
+                    <div class="topbar-sub">Équipe France Grands Comptes</div>
+                </div>
+                <div class="period-tabs" id="periodTabs">
+                    <button class="period-tab" data-period="mois">Ce mois</button>
+                    <button class="period-tab active" data-period="trimestre">Ce trimestre</button>
+                    <button class="period-tab" data-period="12mois">12 mois</button>
+                    <button class="period-tab" data-period="activation">Depuis activation</button>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="live-pill" id="livePill">
+                    <div class="live-dot"></div>
+                    3 appels en cours
+                </div>
+                <button class="btn btn-ghost" id="exportBtn">
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 6l3.5 3.5L10 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                    Exporter rapport CODIR
+                </button>
+                <button class="btn btn-primary" id="topPerfBtn">
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="white" stroke-width="1.4"/><path d="M6.5 4v2.5l1.5 1.5" stroke="white" stroke-width="1.4" stroke-linecap="round"/></svg>
+                    Top Performers
+                </button>
+            </div>
+        </header>
+        <main class="content" id="mainContent">
+            <!-- Dynamically rendered content will be injected here -->
+        </main>
+    </div>
+    <!-- MODAL OVERLAY -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Profil Commercial</div>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+    <!-- TOAST CONTAINER -->
+    <div id="toastContainer" style="position:fixed; bottom:20px; right:20px; z-index:300; display:flex; flex-direction:column; gap:8px;"></div>
+
+    <script>
+        (function() {
+            // ─── DATA ────────────────────────────────────────
+            const periods = {
+                mois: {
+                    label: "Ce mois",
+                    roi: {
+                        ca: "+42k€",
+                        caDelta: "+8% vs mois précédent",
+                        roid: "×9.4",
+                        roidDelta: "Pour 1 € investi : 9,4 € générés",
+                        heures: "18h",
+                        heuresDelta: "≈ 2 700 € de coût évité",
+                        jours: "−22j",
+                        joursDelta: "Avant premier closing des nouvelles recrues"
+                    },
+                    teams: [
+                        { name: "Marie D.", initials: "MD", role: "Account Executive", align: 91, copilote: 87, closing: 34, delta: "+11 pts", status: "En progression", color: "green", avatarBg: "#DBEAFE", avatarColor: "#1D4ED8" },
+                        { name: "Sarah B.", initials: "SB", role: "Account Executive", align: 88, copilote: 79, closing: 26, delta: "−2 pts", status: "Divergence", color: "purple", avatarBg: "#FEF3C7", avatarColor: "#D97706" },
+                        { name: "Marc T.", initials: "MT", role: "Senior AE", align: 77, copilote: 93, closing: 29, delta: "+19 pts", status: "En progression", color: "green", avatarBg: "#F0FDF4", avatarColor: "#059669" },
+                        { name: "Thomas K.", initials: "TK", role: "Account Executive", align: 67, copilote: 41, closing: 18, delta: "−3 pts", status: "À risque", color: "red", avatarBg: "#FEF2F2", avatarColor: "#DC2626" },
+                        { name: "Sophie L.", initials: "SL", role: "SDR Senior", align: 48, copilote: 28, closing: 14, delta: "−5 pts", status: "À risque", color: "red", avatarBg: "#EFF4FF", avatarColor: "#1D4ED8" },
+                    ],
+                    recruitStats: { received: 23, evaluated: 17, qualified: 4 },
+                    candidates: [
+                        { name: "Antoine R.", initials: "AT", role: "AE Mid-Market", qcm: 94, fit: "Consultatif · Structuré", sim: 89, align: 86, replay: "Objection prix (0:32)", rec: "À rencontrer · Top 5%", recColor: "green" },
+                        { name: "Lucie M.", initials: "LM", role: "SDR", qcm: 88, fit: "Chasseur · Résilient", sim: 79, align: 78, replay: "Négociation (0:28)", rec: "À rencontrer", recColor: "green" },
+                        { name: "Julie M.", initials: "JM", role: "AE Mid-Market", qcm: 72, fit: "Analytique", sim: 62, align: 63, replay: "Cède sur remise (0:41)", rec: "Vivier · À creuser", recColor: "amber" },
+                        { name: "Luc T.", initials: "LT", role: "SDR", qcm: 52, fit: "Non adapté", sim: 31, align: 34, replay: "Raccrochage (0:19)", rec: "Écarté automatiquement", recColor: "red" },
+                    ],
+                    debriefs: [
+                        { title: "Marc V. vs DAF Prospect — Groupe Heliox", amount: "Deal 50 000 € · Signé", status: "Gagné", statusColor: "green", date: "Avant-hier · 47 min · Copilote actif", badges: ["🔥 Deal sauvé", "🎯 9 questions d'impact", "🔇 Silence 4,2s au closing", "✅ 7/8 suggestions suivies"], quant: { parole: 58, questions: 9, objections: "3/3", suggestions: "7/8" }, qual: "Marc a identifié le profil Analytique/Prudent du DAF dès la 8e minute. Il n'a pas survendu, mais a posé 3 questions orientées sur le coût de l'inaction. Sur l'objection tarifaire à la 32e minute, il a maintenu un ton descendant et gardé 4,2 secondes de silence, forçant le DAF à justifier lui-même l'écart de budget." },
+                        { title: "Thomas K. vs DRH Prospect — Medaxis SA", amount: "Deal 28 000 € · Perdu", status: "Perdu", statusColor: "red", date: "Hier · 31 min · Copilote inactif", badges: ["⚠️ Copilote non activé", "📉 Remise −18% concédée", "❌ Closing non tenté"], quant: { parole: 74, questions: 2, objections: "1/3", suggestions: "−18%" }, qual: "Thomas a monopolisé la parole (74%) et n'a posé que 2 questions de découverte. Face à la première objection prix à la 14e minute, il a immédiatement proposé une remise de 18% sans ancrage de valeur préalable. Le closing n'a pas été tenté. L'IA avait généré 4 suggestions en temps réel — aucune n'a été suivie." },
+                    ]
+                },
+                trimestre: {
+                    label: "Ce trimestre",
+                    roi: {
+                        ca: "+187k€",
+                        caDelta: "+34% vs trimestre précédent",
+                        roid: "×14.2",
+                        roidDelta: "Pour 1 € investi : 14,2 € générés",
+                        heures: "62h",
+                        heuresDelta: "≈ 9 300 € de coût évité",
+                        jours: "−38j",
+                        joursDelta: "Avant premier closing des nouvelles recrues"
+                    },
+                    teams: [
+                        { name: "Marie D.", initials: "MD", role: "Account Executive", align: 91, copilote: 87, closing: 34, delta: "+11 pts", status: "En progression", color: "green", avatarBg: "#DBEAFE", avatarColor: "#1D4ED8" },
+                        { name: "Sarah B.", initials: "SB", role: "Account Executive", align: 88, copilote: 79, closing: 26, delta: "−2 pts", status: "Divergence", color: "purple", avatarBg: "#FEF3C7", avatarColor: "#D97706" },
+                        { name: "Marc T.", initials: "MT", role: "Senior AE", align: 77, copilote: 93, closing: 29, delta: "+19 pts", status: "En progression", color: "green", avatarBg: "#F0FDF4", avatarColor: "#059669" },
+                        { name: "Thomas K.", initials: "TK", role: "Account Executive", align: 67, copilote: 41, closing: 18, delta: "−3 pts", status: "À risque", color: "red", avatarBg: "#FEF2F2", avatarColor: "#DC2626" },
+                        { name: "Sophie L.", initials: "SL", role: "SDR Senior", align: 48, copilote: 28, closing: 14, delta: "−5 pts", status: "À risque", color: "red", avatarBg: "#EFF4FF", avatarColor: "#1D4ED8" },
+                    ],
+                    recruitStats: { received: 65, evaluated: 48, qualified: 12 },
+                    candidates: [
+                        { name: "Antoine R.", initials: "AT", role: "AE Mid-Market", qcm: 94, fit: "Consultatif · Structuré", sim: 89, align: 86, replay: "Objection prix (0:32)", rec: "À rencontrer · Top 5%", recColor: "green" },
+                        { name: "Lucie M.", initials: "LM", role: "SDR", qcm: 88, fit: "Chasseur · Résilient", sim: 79, align: 78, replay: "Négociation (0:28)", rec: "À rencontrer", recColor: "green" },
+                        { name: "Julie M.", initials: "JM", role: "AE Mid-Market", qcm: 72, fit: "Analytique", sim: 62, align: 63, replay: "Cède sur remise (0:41)", rec: "Vivier · À creuser", recColor: "amber" },
+                        { name: "Luc T.", initials: "LT", role: "SDR", qcm: 52, fit: "Non adapté", sim: 31, align: 34, replay: "Raccrochage (0:19)", rec: "Écarté automatiquement", recColor: "red" },
+                    ],
+                    debriefs: [
+                        { title: "Marc V. vs DAF Prospect — Groupe Heliox", amount: "Deal 50 000 € · Signé", status: "Gagné", statusColor: "green", date: "Avant-hier · 47 min · Copilote actif", badges: ["🔥 Deal sauvé", "🎯 9 questions d'impact", "🔇 Silence 4,2s au closing", "✅ 7/8 suggestions suivies"], quant: { parole: 58, questions: 9, objections: "3/3", suggestions: "7/8" }, qual: "Marc a identifié le profil Analytique/Prudent du DAF dès la 8e minute. Il n'a pas survendu, mais a posé 3 questions orientées sur le coût de l'inaction. Sur l'objection tarifaire à la 32e minute, il a maintenu un ton descendant et gardé 4,2 secondes de silence, forçant le DAF à justifier lui-même l'écart de budget." },
+                        { title: "Thomas K. vs DRH Prospect — Medaxis SA", amount: "Deal 28 000 € · Perdu", status: "Perdu", statusColor: "red", date: "Hier · 31 min · Copilote inactif", badges: ["⚠️ Copilote non activé", "📉 Remise −18% concédée", "❌ Closing non tenté"], quant: { parole: 74, questions: 2, objections: "1/3", suggestions: "−18%" }, qual: "Thomas a monopolisé la parole (74%) et n'a posé que 2 questions de découverte. Face à la première objection prix à la 14e minute, il a immédiatement proposé une remise de 18% sans ancrage de valeur préalable. Le closing n'a pas été tenté." },
+                    ]
+                },
+                "12mois": {
+                    label: "12 mois glissants",
+                    roi: {
+                        ca: "+642k€",
+                        caDelta: "+78% sur l'année",
+                        roid: "×18.6",
+                        roidDelta: "Pour 1 € investi : 18,6 € générés",
+                        heures: "248h",
+                        heuresDelta: "≈ 37 200 € de coût évité",
+                        jours: "−52j",
+                        joursDelta: "Avant premier closing des nouvelles recrues"
+                    },
+                    teams: [
+                        { name: "Marie D.", initials: "MD", role: "Account Executive", align: 93, copilote: 91, closing: 38, delta: "+15 pts", status: "En progression", color: "green", avatarBg: "#DBEAFE", avatarColor: "#1D4ED8" },
+                        { name: "Sarah B.", initials: "SB", role: "Account Executive", align: 85, copilote: 82, closing: 28, delta: "+4 pts", status: "En progression", color: "green", avatarBg: "#FEF3C7", avatarColor: "#D97706" },
+                        { name: "Marc T.", initials: "MT", role: "Senior AE", align: 79, copilote: 95, closing: 32, delta: "+24 pts", status: "En progression", color: "green", avatarBg: "#F0FDF4", avatarColor: "#059669" },
+                        { name: "Thomas K.", initials: "TK", role: "Account Executive", align: 61, copilote: 38, closing: 16, delta: "−8 pts", status: "À risque", color: "red", avatarBg: "#FEF2F2", avatarColor: "#DC2626" },
+                        { name: "Sophie L.", initials: "SL", role: "SDR Senior", align: 44, copilote: 25, closing: 12, delta: "−9 pts", status: "À risque", color: "red", avatarBg: "#EFF4FF", avatarColor: "#1D4ED8" },
+                    ],
+                    recruitStats: { received: 280, evaluated: 210, qualified: 45 },
+                    candidates: [
+                        { name: "Antoine R.", initials: "AT", role: "AE Mid-Market", qcm: 94, fit: "Consultatif · Structuré", sim: 89, align: 86, replay: "Objection prix (0:32)", rec: "À rencontrer · Top 5%", recColor: "green" },
+                        { name: "Lucie M.", initials: "LM", role: "SDR", qcm: 88, fit: "Chasseur · Résilient", sim: 79, align: 78, replay: "Négociation (0:28)", rec: "À rencontrer", recColor: "green" },
+                        { name: "Julie M.", initials: "JM", role: "AE Mid-Market", qcm: 72, fit: "Analytique", sim: 62, align: 63, replay: "Cède sur remise (0:41)", rec: "Vivier · À creuser", recColor: "amber" },
+                        { name: "Luc T.", initials: "LT", role: "SDR", qcm: 52, fit: "Non adapté", sim: 31, align: 34, replay: "Raccrochage (0:19)", rec: "Écarté automatiquement", recColor: "red" },
+                    ],
+                    debriefs: [
+                        { title: "Marc V. vs DAF Prospect — Groupe Heliox", amount: "Deal 50 000 € · Signé", status: "Gagné", statusColor: "green", date: "Avant-hier · 47 min · Copilote actif", badges: ["🔥 Deal sauvé", "🎯 9 questions d'impact", "🔇 Silence 4,2s au closing", "✅ 7/8 suggestions suivies"], quant: { parole: 58, questions: 9, objections: "3/3", suggestions: "7/8" }, qual: "Marc a identifié le profil Analytique/Prudent du DAF dès la 8e minute. Il n'a pas survendu, mais a posé 3 questions orientées sur le coût de l'inaction. Sur l'objection tarifaire à la 32e minute, il a maintenu un ton descendant et gardé 4,2 secondes de silence, forçant le DAF à justifier lui-même l'écart de budget." },
+                        { title: "Thomas K. vs DRH Prospect — Medaxis SA", amount: "Deal 28 000 € · Perdu", status: "Perdu", statusColor: "red", date: "Hier · 31 min · Copilote inactif", badges: ["⚠️ Copilote non activé", "📉 Remise −18% concédée", "❌ Closing non tenté"], quant: { parole: 74, questions: 2, objections: "1/3", suggestions: "−18%" }, qual: "Thomas a monopolisé la parole (74%) et n'a posé que 2 questions de découverte. Face à la première objection prix à la 14e minute, il a immédiatement proposé une remise de 18% sans ancrage de valeur préalable. Le closing n'a pas été tenté." },
+                    ]
+                },
+                activation: {
+                    label: "Depuis activation",
+                    roi: {
+                        ca: "+1 120k€",
+                        caDelta: "Depuis le lancement",
+                        roid: "×22.4",
+                        roidDelta: "Pour 1 € investi : 22,4 € générés",
+                        heures: "480h",
+                        heuresDelta: "≈ 72 000 € de coût évité",
+                        jours: "−64j",
+                        joursDelta: "Avant premier closing des nouvelles recrues"
+                    },
+                    teams: [
+                        { name: "Marie D.", initials: "MD", role: "Account Executive", align: 94, copilote: 93, closing: 40, delta: "+20 pts", status: "En progression", color: "green", avatarBg: "#DBEAFE", avatarColor: "#1D4ED8" },
+                        { name: "Sarah B.", initials: "SB", role: "Account Executive", align: 86, copilote: 84, closing: 30, delta: "+9 pts", status: "En progression", color: "green", avatarBg: "#FEF3C7", avatarColor: "#D97706" },
+                        { name: "Marc T.", initials: "MT", role: "Senior AE", align: 81, copilote: 96, closing: 35, delta: "+28 pts", status: "En progression", color: "green", avatarBg: "#F0FDF4", avatarColor: "#059669" },
+                        { name: "Thomas K.", initials: "TK", role: "Account Executive", align: 58, copilote: 35, closing: 15, delta: "−12 pts", status: "À risque", color: "red", avatarBg: "#FEF2F2", avatarColor: "#DC2626" },
+                        { name: "Sophie L.", initials: "SL", role: "SDR Senior", align: 40, copilote: 20, closing: 10, delta: "−15 pts", status: "À risque", color: "red", avatarBg: "#EFF4FF", avatarColor: "#1D4ED8" },
+                    ],
+                    recruitStats: { received: 520, evaluated: 390, qualified: 82 },
+                    candidates: [
+                        { name: "Antoine R.", initials: "AT", role: "AE Mid-Market", qcm: 94, fit: "Consultatif · Structuré", sim: 89, align: 86, replay: "Objection prix (0:32)", rec: "À rencontrer · Top 5%", recColor: "green" },
+                        { name: "Lucie M.", initials: "LM", role: "SDR", qcm: 88, fit: "Chasseur · Résilient", sim: 79, align: 78, replay: "Négociation (0:28)", rec: "À rencontrer", recColor: "green" },
+                        { name: "Julie M.", initials: "JM", role: "AE Mid-Market", qcm: 72, fit: "Analytique", sim: 62, align: 63, replay: "Cède sur remise (0:41)", rec: "Vivier · À creuser", recColor: "amber" },
+                        { name: "Luc T.", initials: "LT", role: "SDR", qcm: 52, fit: "Non adapté", sim: 31, align: 34, replay: "Raccrochage (0:19)", rec: "Écarté automatiquement", recColor: "red" },
+                    ],
+                    debriefs: [
+                        { title: "Marc V. vs DAF Prospect — Groupe Heliox", amount: "Deal 50 000 € · Signé", status: "Gagné", statusColor: "green", date: "Avant-hier · 47 min · Copilote actif", badges: ["🔥 Deal sauvé", "🎯 9 questions d'impact", "🔇 Silence 4,2s au closing", "✅ 7/8 suggestions suivies"], quant: { parole: 58, questions: 9, objections: "3/3", suggestions: "7/8" }, qual: "Marc a identifié le profil Analytique/Prudent du DAF dès la 8e minute. Il n'a pas survendu, mais a posé 3 questions orientées sur le coût de l'inaction. Sur l'objection tarifaire à la 32e minute, il a maintenu un ton descendant et gardé 4,2 secondes de silence, forçant le DAF à justifier lui-même l'écart de budget." },
+                        { title: "Thomas K. vs DRH Prospect — Medaxis SA", amount: "Deal 28 000 € · Perdu", status: "Perdu", statusColor: "red", date: "Hier · 31 min · Copilote inactif", badges: ["⚠️ Copilote non activé", "📉 Remise −18% concédée", "❌ Closing non tenté"], quant: { parole: 74, questions: 2, objections: "1/3", suggestions: "−18%" }, qual: "Thomas a monopolisé la parole (74%) et n'a posé que 2 questions de découverte. Face à la première objection prix à la 14e minute, il a immédiatement proposé une remise de 18% sans ancrage de valeur préalable. Le closing n'a pas été tenté." },
+                    ]
+                }
+            };
+
+            // ─── STATE ────────────────────────────────────────
+            const state = {
+                period: 'trimestre',
+                view: 'overview', // 'overview' | 'team' | 'recruitment' | 'coaching'
+                teamFilter: 'tous', // 'tous', 'progression', 'risque', 'divergence'
+                radarFilter: '1m',
+                selectedRep: null, // for modal
+            };
+
+            // ─── DOM REFS ─────────────────────────────────────
+            const mainContent = document.getElementById('mainContent');
+            const modalOverlay = document.getElementById('modalOverlay');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+            const modalClose = document.getElementById('modalClose');
+            const toastContainer = document.getElementById('toastContainer');
+
+            // ─── RENDER FUNCTIONS ────────────────────────────
+            function render() {
+                renderSidebarActive();
+                renderTopbarActive();
+                renderContent();
+            }
+
+            function renderSidebarActive() {
+                document.querySelectorAll('.sb-icon[data-view]').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.view === state.view);
+                });
+            }
+
+            function renderTopbarActive() {
+                document.querySelectorAll('.period-tab').forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.period === state.period);
+                });
+                // Update topbar title and sub maybe
+            }
+
+            function renderContent() {
+                if (state.view === 'overview') {
+                    renderOverview();
+                } else if (state.view === 'team') {
+                    renderTeam();
+                } else if (state.view === 'recruitment') {
+                    renderRecruitment();
+                } else if (state.view === 'coaching') {
+                    renderCoaching();
+                }
+            }
+
+            // ─── OVERVIEW ─────────────────────────────────────
+            function renderOverview() {
+                const periodData = periods[state.period];
+                let html = `
+                    <div class="tab-nav" style="margin:0 auto;">
+                        <button class="tab-btn active" data-view="overview">Vue d'ensemble</button>
+                        <button class="tab-btn" data-view="team">Équipe</button>
+                        <button class="tab-btn" data-view="recruitment">Recrutement</button>
+                        <button class="tab-btn" data-view="coaching">Coaching</button>
+                    </div>
+                    <div class="ai-feed">
+                        <div class="ai-feed-header">
+                            <div class="ai-feed-label"><span class="ai-badge">IA</span> Fil d'actualité — Actions prioritaires du jour</div>
+                            <button class="btn btn-ghost" style="font-size:11px; padding:3px 8px;" data-toast="Toutes les actions IA affichées.">Tout voir</button>
+                        </div>
+                        <div class="feed-cards">
+                            <div class="feed-card type-opp">
+                                <div class="feed-tag opp">🔥 Opportunité · Duplication Best Practice</div>
+                                <div class="feed-text"><strong>Thomas</strong> atteint 42% de taux de closing sur la phase Découverte. L'IA a isolé sa séquence décisive de 3 min et l'a injectée dans le parcours des 3 commerciaux sous 20%.</div>
+                                <div class="feed-actions">
+                                    <button class="feed-btn primary-action" data-toast="Séquence audio en cours de lecture…">▶ Écouter la séquence (3:12)</button>
+                                    <button class="feed-btn secondary-action" data-toast="Parcours créé et assigné à 3 commerciaux.">Voir le parcours créé</button>
+                                </div>
+                            </div>
+                            <div class="feed-card type-warn">
+                                <div class="feed-tag warn">⚠️ Alerte · Divergence entraînement / terrain</div>
+                                <div class="feed-text"><strong>Sarah B.</strong> obtient 95% au simulateur sur la défense des prix, mais concède −15% de remise dès la 10e minute en visio réelle.</div>
+                                <div class="feed-actions">
+                                    <button class="feed-btn primary-action" data-toast="Autopsie de l'appel ouverte.">Voir l'autopsie</button>
+                                    <button class="feed-btn secondary-action" data-toast="Entraînement posture programmé.">Programmer un entraînement posture</button>
+                                </div>
+                            </div>
+                            <div class="feed-card type-alert">
+                                <div class="feed-tag alert">🔴 Urgent · Décrochage comportemental</div>
+                                <div class="feed-text"><strong>Thomas K.</strong> n'a pas activé le copilote temps réel depuis 9 jours. Son taux de closing a baissé de 6 points.</div>
+                                <div class="feed-actions">
+                                    <button class="feed-btn primary-action" data-toast="Point de suivi envoyé au commercial.">Envoyer le point pré-rédigé</button>
+                                </div>
+                            </div>
+                            <div class="feed-card type-info">
+                                <div class="feed-tag info">🔵 Insight · Point faible collectif</div>
+                                <div class="feed-text">L'équipe progresse sur la Découverte (+12 pts) mais la <strong>demande d'engagement reste le creux collectif</strong> (−8 pts vs Top Performers).</div>
+                                <div class="feed-actions">
+                                    <button class="feed-btn primary-action" data-toast="Parcours collectif créé.">Créer le parcours collectif</button>
+                                    <button class="feed-btn secondary-action" data-toast="Atelier closing planifié.">Planifier l'atelier</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="roi-block">
+                        <div class="section-header">
+                            <div class="section-title">
+                                <div class="section-icon" style="background:#EFF4FF;"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1.5v11M3 5l4-3.5L11 5M3 10h8" stroke="#1D4ED8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                                Retour sur investissement — ${periodData.label}
+                            </div>
+                        </div>
+                        <div class="roi-kpis">
+                            <div class="roi-card accent-green">
+                                <div class="roi-label">CA additionnel attribuable</div>
+                                <div class="roi-value">${periodData.roi.ca}</div>
+                                <div class="roi-delta up">↑ ${periodData.roi.caDelta}</div>
+                                <div class="roi-sub">Hausse du taux de closing depuis activation coaching temps réel</div>
+                                <button class="roi-cta" data-toast="Méthode de calcul détaillée disponible.">Voir la méthode de calcul →</button>
+                            </div>
+                            <div class="roi-card accent-blue">
+                                <div class="roi-label">ROI net de la licence</div>
+                                <div class="roi-value">${periodData.roi.roid}</div>
+                                <div class="roi-delta up">${periodData.roi.roidDelta}</div>
+                                <div class="roi-sub">Calcul net : gains CA + coûts évités − coût licence</div>
+                                <button class="roi-cta" data-toast="Détail CODIR exportable prêt.">Détail CODIR exportable →</button>
+                            </div>
+                            <div class="roi-card accent-amber">
+                                <div class="roi-label">Coût managérial préservé</div>
+                                <div class="roi-value">${periodData.roi.heures}</div>
+                                <div class="roi-delta neutral">${periodData.roi.heuresDelta}</div>
+                                <div class="roi-sub">${periodData.recruitStats.received} candidats évalués sans mobiliser une minute RH/manager</div>
+                                <button class="roi-cta" data-toast="Entonnoir de recrutement affiché.">Voir l'entonnoir recrutement →</button>
+                            </div>
+                            <div class="roi-card accent-purple">
+                                <div class="roi-label">Réduction délai performance</div>
+                                <div class="roi-value">${periodData.roi.jours}</div>
+                                <div class="roi-delta up">${periodData.roi.joursDelta}</div>
+                                <div class="roi-sub">Moyenne sur les 4 derniers recrutements traités via la plateforme</div>
+                                <button class="roi-cta" data-toast="Cohorte des nouvelles recrues affichée.">Voir la cohorte →</button>
+                            </div>
+                        </div>
+                        <div class="correlation-card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">Corrélation Compétences → Chiffre d'affaires</div>
+                                    <div class="card-sub">La hausse des scores précède systématiquement la hausse du CA de 2 à 3 semaines</div>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div class="chart-legend">
+                                        <div class="legend-item"><div class="legend-dot" style="background:#1D4ED8;"></div> Score compétence</div>
+                                        <div class="legend-item"><div class="legend-dot" style="background:#059669;"></div> CA mensuel</div>
+                                        <div class="legend-item"><div style="width:18px; height:2px; background:#E2E7EF; border-radius:2px;"></div> Activation</div>
+                                    </div>
+                                    <button class="btn btn-ghost" style="font-size:11px; padding:4px 8px;" data-toast="Graphique téléchargé pour présentation.">↓ Télécharger</button>
+                                </div>
+                            </div>
+                            <div class="chart-area">
+                                <svg class="chart-svg" viewBox="0 0 900 110" preserveAspectRatio="none">
+                                    <line x1="0" y1="22" x2="900" y2="22" stroke="#E2E7EF" stroke-width="1"/>
+                                    <line x1="0" y1="44" x2="900" y2="44" stroke="#E2E7EF" stroke-width="1"/>
+                                    <line x1="0" y1="66" x2="900" y2="66" stroke="#E2E7EF" stroke-width="1"/>
+                                    <line x1="0" y1="88" x2="900" y2="88" stroke="#E2E7EF" stroke-width="1"/>
+                                    <line x1="220" y1="0" x2="220" y2="105" stroke="#E2E7EF" stroke-width="1.5" stroke-dasharray="4,3"/>
+                                    <text x="224" y="10" font-size="9" fill="#94A3B8" font-family="Inter">Simulateur vocal</text>
+                                    <line x1="470" y1="0" x2="470" y2="105" stroke="#E2E7EF" stroke-width="1.5" stroke-dasharray="4,3"/>
+                                    <text x="474" y="10" font-size="9" fill="#94A3B8" font-family="Inter">Copilote temps réel</text>
+                                    <line x1="690" y1="0" x2="690" y2="105" stroke="#E2E7EF" stroke-width="1.5" stroke-dasharray="4,3"/>
+                                    <text x="694" y="10" font-size="9" fill="#94A3B8" font-family="Inter">Recrutement IA</text>
+                                    <path d="M0,90 C50,88 100,84 150,80 C200,76 210,75 220,74 C280,70 340,64 380,58 C420,52 450,49 470,47 C530,40 580,32 630,24 C660,18 680,14 690,12 C730,5 780,0 840,-4 L900,-8 L900,110 L0,110Z" fill="rgba(5,150,105,0.1)"/>
+                                    <path d="M0,90 C50,88 100,84 150,80 C200,76 210,75 220,74 C280,70 340,64 380,58 C420,52 450,49 470,47 C530,40 580,32 630,24 C660,18 680,14 690,12 C730,5 780,0 840,-4 L900,-8" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round"/>
+                                    <path d="M0,98 C40,94 80,88 120,82 C160,76 200,70 220,66 C260,60 310,52 360,44 C400,38 440,32 470,27 C510,20 560,12 610,4 C650,-2 670,-6 690,-9 C730,-14 780,-19 840,-23 L900,-26" fill="none" stroke="#1D4ED8" stroke-width="1.8" stroke-dasharray="5,3" stroke-linecap="round"/>
+                                    <text x="10" y="108" font-size="9" fill="#94A3B8" font-family="Inter">Jan</text>
+                                    <text x="118" y="108" font-size="9" fill="#94A3B8" font-family="Inter">Fév</text>
+                                    <text x="230" y="108" font-size="9" fill="#94A3B8" font-family="Inter">Mars</text>
+                                    <text x="345" y="108" font-size="9" fill="#94A3B8" font-family="Inter">Avr</text>
+                                    <text x="455" y="108" font-size="9" fill="#94A3B8" font-family="Inter">Mai</text>
+                                    <text x="568" y="108" font-size="9" fill="#94A3B8" font-family="Inter">Juin</text>
+                                    <text x="680" y="108" font-size="9" fill="#94A3B8" font-family="Inter">Juil</text>
+                                    <text x="790" y="108" font-size="9" fill="#94A3B8" font-family="Inter">Août</text>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                mainContent.innerHTML = html;
+                attachTabEvents();
+                attachDataToastEvents();
+            }
+
+            // ─── TEAM ────────────────────────────────────────
+            function renderTeam() {
+                const periodData = periods[state.period];
+                const teams = periodData.teams.filter(rep => {
+                    if (state.teamFilter === 'tous') return true;
+                    if (state.teamFilter === 'progression') return rep.status === 'En progression';
+                    if (state.teamFilter === 'risque') return rep.status === 'À risque';
+                    if (state.teamFilter === 'divergence') return rep.status === 'Divergence';
+                    return true;
+                });
+                let rows = teams.map(rep => `
+                    <tr data-rep="${rep.name}">
+                        <td><div class="rep-info"><div class="rep-avatar" style="background:${rep.avatarBg}; color:${rep.avatarColor};">${rep.initials}</div><div><div class="rep-name">${rep.name}</div><div class="rep-role">${rep.role}</div></div></div></td>
+                        <td><div class="circle-wrap"><svg class="circ-svg" viewBox="0 0 40 40" style="width:30px;height:30px;"><circle class="circ-bg" cx="20" cy="20" r="15.9"/><circle class="circ-fill ${rep.color}" cx="20" cy="20" r="15.9" style="stroke-dashoffset: ${100 - rep.align};"/></svg><span class="circ-label">${rep.align}%</span></div></td>
+                        <td><div class="bar-mini"><div class="bar-mini-fill ${rep.copilote > 70 ? 'green' : rep.copilote > 40 ? 'amber' : 'red'}" style="width:${rep.copilote}%;"></div></div><div class="mini-stat">${rep.copilote}%</div></td>
+                        <td><span style="font-size:12px; font-weight:600;">${rep.closing}%</span></td>
+                        <td><span style="font-size:11px; font-weight:600; color:${rep.delta.startsWith('+') ? 'var(--green)' : 'var(--red)'};">${rep.delta}</span></td>
+                        <td><span class="status-badge badge-${rep.color}"><span class="dot"></span>${rep.status}</span></td>
+                        <td><button class="action-link" data-rep="${rep.name}">Profil →</button></td>
+                    </tr>
+                `).join('');
+                let html = `
+                    <div class="tab-nav" style="margin:0 auto;">
+                        <button class="tab-btn" data-view="overview">Vue d'ensemble</button>
+                        <button class="tab-btn active" data-view="team">Équipe</button>
+                        <button class="tab-btn" data-view="recruitment">Recrutement</button>
+                        <button class="tab-btn" data-view="coaching">Coaching</button>
+                    </div>
+                    <div class="section-header">
+                        <div class="section-title">
+                            <div class="section-icon" style="background:#ECFDF5;"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="5.5" cy="4.5" r="2" stroke="#059669" stroke-width="1.4"/><path d="M1.5 12c0-2.21 1.79-4 4-4s4 1.79 4 4" stroke="#059669" stroke-width="1.4" stroke-linecap="round"/><circle cx="10.5" cy="4.5" r="1.5" stroke="#059669" stroke-width="1.4"/><path d="M12.5 12c0-1.66-0.9-3-2-3" stroke="#059669" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+                            Matrice équipe & Radar Top Performer
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="team-card">
+                            <div class="team-card-header">
+                                <div style="font-size:12px; font-weight:600;">${teams.length} commerciaux</div>
+                                <div class="filter-pills">
+                                    <button class="filter-pill ${state.teamFilter === 'tous' ? 'active' : ''}" data-filter="tous">Tous</button>
+                                    <button class="filter-pill ${state.teamFilter === 'progression' ? 'active' : ''}" data-filter="progression">En progression</button>
+                                    <button class="filter-pill ${state.teamFilter === 'risque' ? 'active' : ''}" data-filter="risque">À risque</button>
+                                    <button class="filter-pill ${state.teamFilter === 'divergence' ? 'active' : ''}" data-filter="divergence">Divergence</button>
+                                </div>
+                            </div>
+                            <div class="team-table-wrap">
+                                <table class="team-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Commercial</th>
+                                            <th>Alignement Top Perf.</th>
+                                            <th>Copilote utilisé</th>
+                                            <th>Taux closing</th>
+                                            <th>Delta M-1</th>
+                                            <th>Statut</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>${rows}</tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="radar-card">
+                            <div class="card-header" style="margin-bottom:0;">
+                                <div>
+                                    <div class="card-title">Radar d'alignement</div>
+                                    <div class="card-sub">Équipe vs Top Performers</div>
+                                </div>
+                            </div>
+                            <div class="radar-filters">
+                                <button class="radar-filter ${state.radarFilter === '1m' ? 'active' : ''}" data-filter="1m">1 mois</button>
+                                <button class="radar-filter ${state.radarFilter === '1t' ? 'active' : ''}" data-filter="1t">1 trimestre</button>
+                                <button class="radar-filter ${state.radarFilter === '1a' ? 'active' : ''}" data-filter="1a">1 an</button>
+                                <button class="radar-filter ${state.radarFilter === 'tl' ? 'active' : ''}" data-filter="tl">Time-lapse</button>
+                            </div>
+                            <div class="radar-svg-wrap">
+                                <svg width="200" height="180" viewBox="0 0 240 230">
+                                    <g transform="translate(120,115)">
+                                        <polygon points="0,-90 77.9,-45 77.9,45 0,90 -77.9,45 -77.9,-45" fill="none" stroke="#E2E7EF" stroke-width="1"/>
+                                        <polygon points="0,-67.5 58.4,-33.75 58.4,33.75 0,67.5 -58.4,33.75 -58.4,-33.75" fill="none" stroke="#E2E7EF" stroke-width="1"/>
+                                        <polygon points="0,-45 38.97,-22.5 38.97,22.5 0,45 -38.97,22.5 -38.97,-22.5" fill="none" stroke="#E2E7EF" stroke-width="1"/>
+                                        <polygon points="0,-22.5 19.49,-11.25 19.49,11.25 0,22.5 -19.49,11.25 -19.49,-11.25" fill="none" stroke="#E2E7EF" stroke-width="1"/>
+                                        <line x1="0" y1="0" x2="0" y2="-90" stroke="#D0D7E3" stroke-width="1"/>
+                                        <line x1="0" y1="0" x2="77.9" y2="-45" stroke="#D0D7E3" stroke-width="1"/>
+                                        <line x1="0" y1="0" x2="77.9" y2="45" stroke="#D0D7E3" stroke-width="1"/>
+                                        <line x1="0" y1="0" x2="0" y2="90" stroke="#D0D7E3" stroke-width="1"/>
+                                        <line x1="0" y1="0" x2="-77.9" y2="45" stroke="#D0D7E3" stroke-width="1"/>
+                                        <line x1="0" y1="0" x2="-77.9" y2="-45" stroke="#D0D7E3" stroke-width="1"/>
+                                        <polygon points="0,-84 72,-41 72,43 0,83 -72,43 -72,-41" fill="rgba(245,158,11,0.08)" stroke="#D97706" stroke-width="1.5" stroke-dasharray="5,3" />
+                                        <polygon points="0,-49 42.4,-24.5 46,26 0,54 -43,27 -47,-25" fill="none" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="3,3" />
+                                        <polygon points="0,-67 58,-34 62,37 0,70 -60,37 -57,-33" fill="rgba(29,78,216,0.1)" stroke="#1D4ED8" stroke-width="2" />
+                                        <text x="0" y="-98" text-anchor="middle" font-size="9" fill="#64748B" font-family="Inter" font-weight="500">Découverte</text>
+                                        <text x="88" y="-50" text-anchor="start" font-size="9" fill="#64748B" font-family="Inter" font-weight="500">Objection prix</text>
+                                        <text x="88" y="54" text-anchor="start" font-size="9" fill="#64748B" font-family="Inter" font-weight="500">Posture</text>
+                                        <text x="0" y="108" text-anchor="middle" font-size="9" fill="#64748B" font-family="Inter" font-weight="500">Pitch</text>
+                                        <text x="-88" y="54" text-anchor="end" font-size="9" fill="#64748B" font-family="Inter" font-weight="500">Teaching</text>
+                                        <text x="-88" y="-50" text-anchor="end" font-size="9" fill="#64748B" font-family="Inter" font-weight="500">Closing</text>
+                                    </g>
+                                </svg>
+                            </div>
+                            <div class="radar-legend">
+                                <div class="radar-leg-item"><div class="radar-leg-line" style="background:#1D4ED8;"></div>Équipe (maintenant)</div>
+                                <div class="radar-leg-item"><div class="radar-leg-line" style="background:#D97706; border-top: 2px dashed #D97706; height:0;"></div>Top Performers</div>
+                                <div class="radar-leg-item"><div class="radar-leg-line" style="background:#CBD5E1; border-top: 2px dashed #CBD5E1; height:0;"></div>Il y a 3 mois</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                mainContent.innerHTML = html;
+                attachTabEvents();
+                attachFilterEvents();
+                attachRepClickEvents();
+                attachDataToastEvents();
+                attachRadarFilterEvents();
+            }
+
+            // ─── RECRUITMENT ─────────────────────────────────
+            function renderRecruitment() {
+                const periodData = periods[state.period];
+                const candidates = periodData.candidates;
+                let rows = candidates.map(c => `
+                    <tr>
+                        <td><div class="rep-info"><div class="rep-avatar" style="background:${c.recColor === 'green' ? '#DBEAFE' : c.recColor === 'amber' ? '#FFFBEB' : '#FEF2F2'}; color:${c.recColor === 'green' ? '#1D4ED8' : c.recColor === 'amber' ? '#D97706' : '#DC2626'}; font-size:11px;">${c.initials}</div><div><div class="rep-name">${c.name}</div></div></div></td>
+                        <td style="font-size:11px;">${c.role}</td>
+                        <td><span class="score-pill score-${c.qcm > 85 ? 'high' : c.qcm > 60 ? 'mid' : 'low'}">${c.qcm}%</span></td>
+                        <td style="font-size:11px;">${c.fit}</td>
+                        <td><span class="score-pill score-${c.sim > 85 ? 'high' : c.sim > 60 ? 'mid' : 'low'}">${c.sim}%</span></td>
+                        <td><div class="circle-wrap"><svg class="circ-svg" viewBox="0 0 40 40" style="width:26px;height:26px;"><circle class="circ-bg" cx="20" cy="20" r="15.9"/><circle class="circ-fill ${c.align > 85 ? 'green' : c.align > 60 ? 'amber' : 'red'}" cx="20" cy="20" r="15.9" style="stroke-dashoffset: ${100 - c.align};"/></svg><span style="font-size:11px; font-weight:600;">${c.align}%</span></div></td>
+                        <td><button class="replay-btn" data-replay="${c.replay}"><svg class="play-icon" viewBox="0 0 12 12" fill="currentColor"><path d="M3 2.5l7 3.5-7 3.5V2.5z"/></svg>${c.replay}</button></td>
+                        <td><span class="status-badge badge-${c.recColor}"><span class="dot"></span>${c.rec}</span></td>
+                    </tr>
+                `).join('');
+                let html = `
+                    <div class="tab-nav" style="margin:0 auto;">
+                        <button class="tab-btn" data-view="overview">Vue d'ensemble</button>
+                        <button class="tab-btn" data-view="team">Équipe</button>
+                        <button class="tab-btn active" data-view="recruitment">Recrutement</button>
+                        <button class="tab-btn" data-view="coaching">Coaching</button>
+                    </div>
+                    <div class="section-header">
+                        <div class="section-title">
+                            <div class="section-icon" style="background:#FFFBEB;"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L8.3 5.2H12.2L9 7.4L10.1 11.1L7 8.9L3.9 11.1L5 7.4L1.8 5.2H5.7L7 1.5Z" stroke="#D97706" stroke-width="1.3" fill="none"/></svg></div>
+                            Pipeline de recrutement — ${periodData.label}
+                        </div>
+                    </div>
+                    <div class="recruit-row">
+                        <div class="recruit-stat">
+                            <div class="recruit-stat-num">${periodData.recruitStats.received}</div>
+                            <div class="recruit-stat-label">Candidatures reçues</div>
+                        </div>
+                        <div class="recruit-stat">
+                            <div class="recruit-stat-num" style="color:var(--blue);">${periodData.recruitStats.evaluated}</div>
+                            <div class="recruit-stat-label">Évaluées automatiquement (QCM + simulation)</div>
+                            <div class="recruit-stat-impact">↳ 0 heure mobilisée avant la décision finale</div>
+                        </div>
+                        <div class="recruit-stat">
+                            <div class="recruit-stat-num" style="color:var(--green);">${periodData.recruitStats.qualified}</div>
+                            <div class="recruit-stat-label">Profils qualifiés · prêts à rencontrer</div>
+                            <div class="recruit-stat-impact">Taux de filtrage automatique : ${Math.round(100 - (periodData.recruitStats.qualified / periodData.recruitStats.received * 100))}%</div>
+                        </div>
+                    </div>
+                    <div class="funnel-row">
+                        <div class="funnel-step">
+                            <div class="funnel-label">Candidatures reçues</div>
+                            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:100%; background:#1D4ED8;"></div></div>
+                            <div class="funnel-num">${periodData.recruitStats.received}</div>
+                        </div>
+                        <div class="funnel-step">
+                            <div class="funnel-label">Simulation complétée</div>
+                            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:${(periodData.recruitStats.evaluated / periodData.recruitStats.received * 100)}%; background:#3B82F6;"></div></div>
+                            <div class="funnel-num">${periodData.recruitStats.evaluated}</div>
+                        </div>
+                        <div class="funnel-step">
+                            <div class="funnel-label">Seuil de qualification atteint</div>
+                            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:${(periodData.recruitStats.qualified / periodData.recruitStats.received * 100)}%; background:#059669;"></div></div>
+                            <div class="funnel-num">${periodData.recruitStats.qualified}</div>
+                        </div>
+                        <div class="funnel-step">
+                            <div class="funnel-label">Entretien humain planifié</div>
+                            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:13%; background:#D97706;"></div></div>
+                            <div class="funnel-num">2</div>
+                        </div>
+                    </div>
+                    <div class="ats-table-wrap">
+                        <table class="ats-table">
+                            <thead>
+                                <tr>
+                                    <th>Candidat</th>
+                                    <th>Poste</th>
+                                    <th>QCM</th>
+                                    <th>Fit comportemental</th>
+                                    <th>Simulateur vocal</th>
+                                    <th>Alignement Top Perf.</th>
+                                    <th>Replay moment critique</th>
+                                    <th>Recommandation IA</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                `;
+                mainContent.innerHTML = html;
+                attachTabEvents();
+                attachDataToastEvents();
+                attachReplayEvents();
+            }
+
+            // ─── COACHING ───────────────────────────────────
+            function renderCoaching() {
+                const periodData = periods[state.period];
+                const debriefs = periodData.debriefs;
+                let html = `
+                    <div class="tab-nav" style="margin:0 auto;">
+                        <button class="tab-btn" data-view="overview">Vue d'ensemble</button>
+                        <button class="tab-btn" data-view="team">Équipe</button>
+                        <button class="tab-btn" data-view="recruitment">Recrutement</button>
+                        <button class="tab-btn active" data-view="coaching">Coaching</button>
+                    </div>
+                    <div class="section-header">
+                        <div class="section-title">
+                            <div class="section-icon" style="background:#F5F3FF;"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z" stroke="#7C3AED" stroke-width="1.4"/><path d="M4.5 9.5C4.5 9.5 5.5 7 7 7s2.5 2.5 2.5 2.5" stroke="#7C3AED" stroke-width="1.4" stroke-linecap="round"/><circle cx="5.5" cy="5.5" r="0.7" fill="#7C3AED"/><circle cx="8.5" cy="5.5" r="0.7" fill="#7C3AED"/></svg></div>
+                            Cockpit coaching — Autopsies des appels réels
+                        </div>
+                        <button class="btn btn-ghost" style="font-size:11px; padding:4px 10px;" data-toast="Tous les débriefs affichés.">Voir tous les débriefs</button>
+                    </div>
+                    <div class="coaching-card">
+                `;
+                debriefs.forEach((d, index) => {
+                    html += `
+                        <div class="debrief-item">
+                            <div class="debrief-top">
+                                <div>
+                                    <div class="debrief-meta">
+                                        <div class="debrief-title">${d.title}</div>
+                                        <span class="deal-amount">${d.amount}</span>
+                                        <span class="status-badge badge-${d.statusColor}" style="font-size:10px;"><span class="dot"></span>${d.status}</span>
+                                    </div>
+                                    <div style="font-size:10.5px; color:var(--text-3); margin-top:3px;">${d.date}</div>
+                                </div>
+                                <div class="ai-badges">
+                                    ${d.badges.map(b => `<span class="ai-badge-item">${b}</span>`).join('')}
+                                </div>
+                            </div>
+                            <div class="debrief-quant">
+                                <div class="dq-item"><div class="dq-num" style="color:${d.quant.parole > 50 ? 'var(--blue)' : 'var(--red)'};">${d.quant.parole}%</div><div class="dq-label">Temps de parole prospect</div></div>
+                                <div class="dq-item"><div class="dq-num">${d.quant.questions}</div><div class="dq-label">Questions d'impact posées</div></div>
+                                <div class="dq-item"><div class="dq-num" style="color:${d.quant.objections === '3/3' ? 'var(--green)' : 'var(--amber)'};">${d.quant.objections}</div><div class="dq-label">Objections traitées</div></div>
+                                <div class="dq-item"><div class="dq-num" style="color:${d.quant.suggestions === '7/8' ? 'var(--green)' : 'var(--red)'};">${d.quant.suggestions}</div><div class="dq-label">Suggestions IA suivies</div></div>
+                            </div>
+                            <div class="debrief-qual" style="border-left-color: ${d.statusColor === 'green' ? 'var(--blue)' : 'var(--red)'};">
+                                <strong>Analyse IA :</strong> ${d.qual}
+                            </div>
+                            <div class="debrief-actions">
+                                <button class="replay-btn" data-replay="Moment clé"><svg class="play-icon" viewBox="0 0 12 12" fill="currentColor"><path d="M3 2.5l7 3.5-7 3.5V2.5z"/></svg>Moment clé (0:45)</button>
+                                <button class="btn btn-ghost" style="font-size:11px; padding:4px 10px;" data-toast="Séquence injectée dans un parcours.">Injecter dans un parcours</button>
+                                <button class="btn btn-ghost" style="font-size:11px; padding:4px 10px;" data-toast="Partage envoyé à l'équipe.">Partager avec l'équipe</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+                mainContent.innerHTML = html;
+                attachTabEvents();
+                attachDataToastEvents();
+                attachReplayEvents();
+            }
+
+            // ─── EVENT ATTACHMENT HELPERS ─────────────────
+            function attachTabEvents() {
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        state.view = btn.dataset.view;
+                        render();
+                    });
+                });
+            }
+
+            function attachDataToastEvents() {
+                document.querySelectorAll('[data-toast]').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        showToast(el.dataset.toast);
+                    });
+                });
+            }
+
+            function attachFilterEvents() {
+                document.querySelectorAll('.filter-pill').forEach(pill => {
+                    pill.addEventListener('click', () => {
+                        state.teamFilter = pill.dataset.filter;
+                        renderTeam();
+                    });
+                });
+            }
+
+            function attachRepClickEvents() {
+                document.querySelectorAll('tr[data-rep]').forEach(row => {
+                    row.addEventListener('click', (e) => {
+                        if (e.target.closest('.action-link')) return;
+                        const repName = row.dataset.rep;
+                        openModal(repName);
+                    });
+                });
+                document.querySelectorAll('.action-link[data-rep]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openModal(btn.dataset.rep);
+                    });
+                });
+            }
+
+            function attachRadarFilterEvents() {
+                document.querySelectorAll('.radar-filter').forEach(f => {
+                    f.addEventListener('click', () => {
+                        state.radarFilter = f.dataset.filter;
+                        renderTeam();
+                    });
+                });
+            }
+
+            function attachReplayEvents() {
+                document.querySelectorAll('.replay-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        showToast('Lecture du replay : ' + (btn.dataset.replay || 'moment clé'));
+                    });
+                });
+            }
+
+            // ─── MODAL ────────────────────────────────────
+            function openModal(repName) {
+                const periodData = periods[state.period];
+                const rep = periodData.teams.find(r => r.name === repName);
+                if (!rep) return;
+                state.selectedRep = repName;
+                modalTitle.textContent = repName + ' — ' + rep.role;
+                modalBody.innerHTML = `
+                    <div class="modal-row">
+                        <div class="modal-col">
+                            <div class="modal-label">Alignement Top Performer</div>
+                            <div class="modal-value">${rep.align}%</div>
+                        </div>
+                        <div class="modal-col">
+                            <div class="modal-label">Copilote utilisé</div>
+                            <div class="modal-value">${rep.copilote}%</div>
+                        </div>
+                        <div class="modal-col">
+                            <div class="modal-label">Taux de closing</div>
+                            <div class="modal-value">${rep.closing}%</div>
+                        </div>
+                    </div>
+                    <div class="modal-row">
+                        <div class="modal-col">
+                            <div class="modal-label">Delta vs M-1</div>
+                            <div class="modal-value">${rep.delta}</div>
+                        </div>
+                        <div class="modal-col">
+                            <div class="modal-label">Statut</div>
+                            <div class="modal-value">${rep.status}</div>
+                        </div>
+                        <div class="modal-col">
+                            <div class="modal-label">Dernière simulation</div>
+                            <div class="modal-value">Il y a 2 jours</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="modal-label">Analyse des derniers appels</div>
+                        <ul style="font-size:12px; color:var(--text-2); padding-left:16px;">
+                            <li>Appel avec le copilote actif : 8 suggestions, 7 suivies</li>
+                            <li>Points forts : découverte et objection prix</li>
+                            <li>Axe d'amélioration : demande d'engagement</li>
+                        </ul>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn btn-primary" data-toast="Parcours personnalisé assigné.">Assigner parcours correctif</button>
+                        <button class="btn btn-ghost" data-toast="Rapport détaillé exporté.">Exporter le rapport détaillé</button>
+                    </div>
+                `;
+                modalOverlay.classList.add('active');
+                attachDataToastEvents(); // reattach for modal buttons
+            }
+
+            function closeModal() {
+                modalOverlay.classList.remove('active');
+                state.selectedRep = null;
+            }
+
+            modalClose.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) closeModal();
+            });
+
+            // ─── TOAST ─────────────────────────────────────
+            function showToast(message) {
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = message;
+                toastContainer.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(10px)';
+                    toast.style.transition = 'all 0.3s ease';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2000);
+            }
+
+            // ─── PERIOD & SIDEBAR EVENTS ──────────────────
+            document.querySelectorAll('.period-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    state.period = tab.dataset.period;
+                    render();
+                });
+            });
+
+            document.querySelectorAll('.sb-icon[data-view]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.view = btn.dataset.view;
+                    render();
+                });
+            });
+
+            document.getElementById('livePill').addEventListener('click', () => {
+                showToast('Vue live (lecture seule) ouverte.');
+            });
+            document.getElementById('exportBtn').addEventListener('click', () => {
+                showToast('Rapport CODIR exporté (PDF simulé).');
+            });
+            document.getElementById('topPerfBtn').addEventListener('click', () => {
+                showToast('Profil des Top Performers affiché.');
+            });
+
+            // Initial render
+            render();
+        })();
+    </script>
+</body>
+</html>
